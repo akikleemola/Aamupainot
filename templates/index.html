@@ -4,56 +4,122 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Aamupainosovellus</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=dark-fitness-2">
 </head>
 <body>
     <main class="container">
-        <nav class="topbar">
-            <span>Kirjautunut: {{ username }}</span>
-            <a href="{{ url_for('logout') }}">Kirjaudu ulos</a>
-        </nav>
+        <header class="app-header">
+            <div>
+                <p class="eyebrow">Aamupainosovellus</p>
+                <h1>Weight Tracker</h1>
+                <p class="intro">Seuraa aamupainon kehitystä, viimeisintä muutosta ja omaa trendiäsi yhdestä näkymästä.</p>
+            </div>
+            <nav class="topbar">
+                <span>{{ username }}</span>
+                <a href="{{ url_for('logout') }}">Kirjaudu ulos</a>
+            </nav>
+        </header>
 
-        <h1>Aamupainosovellus</h1>
-        <p class="intro">Kirjaa päivän aamupaino ja seuraa kehitystäsi rauhassa.</p>
+        <section class="stats-grid" aria-label="Painotilastot">
+            <article class="stat-card">
+                <span>Viimeisin paino</span>
+                <strong>
+                    {% if latest_weight is not none %}
+                        {{ latest_weight }} kg
+                    {% else %}
+                        -
+                    {% endif %}
+                </strong>
+                <small>
+                    {% if latest_date %}
+                        {{ latest_date }}
+                    {% else %}
+                        Ei merkintöjä
+                    {% endif %}
+                </small>
+            </article>
 
-        <section class="panel">
-            <h2>Lisää aamupaino</h2>
-            <form method="post" action="{{ url_for('index') }}">
-                <label for="date">Päivämäärä</label>
-                <input type="date" id="date" name="date" required>
+            <article class="stat-card">
+                <span>Kokonaismuutos</span>
+                <strong>
+                    {% if total_change is not none %}
+                        {{ "%+.1f"|format(total_change) }} kg
+                    {% else %}
+                        -
+                    {% endif %}
+                </strong>
+                <small>Ensimmäisestä merkinnästä</small>
+            </article>
 
-                <label for="weight">Paino (kg)</label>
-                <input type="number" id="weight" name="weight" step="0.1" placeholder="Esim. 81.9" required>
-
-                <button type="submit">Lisää paino</button>
-            </form>
-            <p class="note">Tallennus tehdään SQLite-tietokantaan.</p>
+            <article class="stat-card">
+                <span>Merkintöjä</span>
+                <strong>{{ weight_count }}</strong>
+                <small>Tallennettua aamupainoa</small>
+            </article>
         </section>
 
-        <section class="panel">
-            <h2>Painon kehitys</h2>
-            {% if chart_data|length >= 2 %}
-                <div class="chart-wrap">
-                    <canvas id="weightChart" class="weight-chart" aria-label="Painon kehityskaavio"></canvas>
+        <div class="dashboard-grid">
+            <section class="panel chart-panel">
+                <div class="panel-heading">
+                    <div>
+                        <p class="eyebrow">Trend</p>
+                        <h2>Painon kehitys</h2>
+                    </div>
                 </div>
-            {% else %}
-                <p class="note">Lisää vähintään kaksi painomerkintää, niin kehitys näkyy kaaviona.</p>
-            {% endif %}
-        </section>
 
-        <section class="panel">
-            <h2>Aiemmat painot</h2>
-            <ul class="weight-list">
-                {% for item in weights %}
-                    <li>
-                        <span>{{ item.date }}</span>
-                        <strong>{{ item.weight }} kg</strong>
-                    </li>
+                {% if chart_data|length >= 2 %}
+                    <div class="chart-wrap">
+                        <canvas id="weightChart" class="weight-chart" aria-label="Painon kehityskaavio"></canvas>
+                    </div>
                 {% else %}
-                    <li>Ei painomerkintöjä vielä.</li>
-                {% endfor %}
-            </ul>
-        </section>
+                    <div class="empty-state">
+                        <strong>Kaavio odottaa dataa</strong>
+                        <p>Lisää vähintään kaksi painomerkintää, niin kehitys näkyy tässä.</p>
+                    </div>
+                {% endif %}
+            </section>
+
+            <aside class="side-column">
+                <section class="panel">
+                    <div class="panel-heading">
+                        <div>
+                            <p class="eyebrow">Check-in</p>
+                            <h2>Lisää aamupaino</h2>
+                        </div>
+                    </div>
+
+                    <form method="post" action="{{ url_for('index') }}">
+                        <label for="date">Päivämäärä</label>
+                        <input type="date" id="date" name="date" required>
+
+                        <label for="weight">Paino (kg)</label>
+                        <input type="number" id="weight" name="weight" step="0.1" placeholder="Esim. 81.9" required>
+
+                        <button type="submit">Lisää paino</button>
+                    </form>
+                </section>
+
+                <section class="panel">
+                    <div class="panel-heading">
+                        <div>
+                            <p class="eyebrow">History</p>
+                            <h2>Aiemmat painot</h2>
+                        </div>
+                    </div>
+
+                    <ul class="weight-list">
+                        {% for item in weights %}
+                            <li>
+                                <span>{{ item.date }}</span>
+                                <strong>{{ item.weight }} kg</strong>
+                            </li>
+                        {% else %}
+                            <li>Ei painomerkintöjä vielä.</li>
+                        {% endfor %}
+                    </ul>
+                </section>
+            </aside>
+        </div>
     </main>
 
     <script>
@@ -106,26 +172,28 @@
                 yAxisValues.forEach((value) => {
                     const y = getY(value);
 
-                    context.strokeStyle = "#e3ebe9";
+                    context.strokeStyle = "rgba(148, 163, 184, 0.16)";
                     context.beginPath();
                     context.moveTo(padding.left, y);
                     context.lineTo(width - padding.right, y);
                     context.stroke();
 
-                    context.fillStyle = "#52616f";
+                    context.fillStyle = "#9aa6b8";
                     context.textAlign = "right";
                     context.textBaseline = "middle";
                     context.fillText(`${value} kg`, padding.left - 12, y);
                 });
 
-                context.strokeStyle = "#9fb8b2";
+                context.strokeStyle = "rgba(250, 204, 21, 0.28)";
                 context.beginPath();
                 context.moveTo(padding.left, padding.top);
                 context.lineTo(padding.left, height - padding.bottom);
                 context.lineTo(width - padding.right, height - padding.bottom);
                 context.stroke();
 
-                context.strokeStyle = "#2f7d6d";
+                context.shadowColor = "rgba(245, 158, 11, 0.35)";
+                context.shadowBlur = 14;
+                context.strokeStyle = "#f6b21a";
                 context.lineWidth = 3;
                 context.lineJoin = "round";
                 context.lineCap = "round";
@@ -143,27 +211,28 @@
                 });
 
                 context.stroke();
+                context.shadowBlur = 0;
 
                 chartData.forEach((item, index) => {
                     const x = getX(index);
                     const y = getY(item.weight);
 
-                    context.fillStyle = "#ffffff";
-                    context.strokeStyle = "#2f7d6d";
+                    context.fillStyle = "#0b1224";
+                    context.strokeStyle = "#f6b21a";
                     context.lineWidth = 3;
                     context.beginPath();
-                    context.arc(x, y, 5, 0, Math.PI * 2);
+                    context.arc(x, y, 6, 0, Math.PI * 2);
                     context.fill();
                     context.stroke();
 
-                    context.fillStyle = "#24313d";
+                    context.fillStyle = "#f8fafc";
                     context.font = "bold 13px Arial, sans-serif";
                     context.textAlign = "center";
                     context.textBaseline = "bottom";
                     context.fillText(`${item.weight.toFixed(1)} kg`, x, Math.max(y - 10, 18));
                 });
 
-                context.fillStyle = "#52616f";
+                context.fillStyle = "#9aa6b8";
                 context.font = "13px Arial, sans-serif";
                 context.textBaseline = "top";
 

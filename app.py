@@ -79,11 +79,22 @@ def index():
         {"date": item["date"], "weight": item["weight"]}
         for item in reversed(weights)
     ]
+    latest_weight = chart_data[-1]["weight"] if chart_data else None
+    latest_date = chart_data[-1]["date"] if chart_data else None
+    first_weight = chart_data[0]["weight"] if chart_data else None
+    total_change = None
+
+    if latest_weight is not None and first_weight is not None:
+        total_change = round(latest_weight - first_weight, 1)
 
     return render_template(
         "index.html",
         weights=weights,
         chart_data=chart_data,
+        latest_date=latest_date,
+        latest_weight=latest_weight,
+        total_change=total_change,
+        weight_count=len(chart_data),
         username=session["username"],
     )
 
