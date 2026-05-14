@@ -17,6 +17,8 @@
 
         <section class="panel">
             <form method="post" action="{{ url_for('login') }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
                 <label for="username">Käyttäjänimi</label>
                 <input type="text" id="username" name="username" maxlength="30" required>
 

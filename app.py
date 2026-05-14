@@ -1,9 +1,11 @@
 import re
+import secrets
 import sqlite3
 from datetime import date
 from functools import wraps
 
-from flask import Flask, flash, redirect, render_template, request, session, url_for
+from flask import Flask, abort, flash, redirect, render_template, request, session, url_for
+from hmac import compare_digest
 from werkzeug.security import check_password_hash, generate_password_hash
 
 app = Flask(__name__)
@@ -52,6 +54,30 @@ def login_required(route_function):
         return route_function(*args, **kwargs)
 
     return wrapper
+
+
+def get_csrf_token():
+    if "csrf_token" not in session:
+        session["csrf_token"] = secrets.token_urlsafe(32)
+
+    return session["csrf_token"]
+
+
+@app.context_processor
+def add_csrf_token_to_templates():
+    return {"csrf_token": get_csrf_token}
+
+
+@app.before_request
+def protect_against_csrf():
+    if request.method != "POST":
+        return
+
+    session_token = session.get("csrf_token")
+    form_token = request.form.get("csrf_token")
+
+    if not session_token or not form_token or not compare_digest(session_token, form_token):
+        abort(400)
 
 
 @app.after_request
