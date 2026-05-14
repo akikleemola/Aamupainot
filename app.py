@@ -1,3 +1,4 @@
+import os
 import re
 import secrets
 import sqlite3
@@ -9,7 +10,17 @@ from hmac import compare_digest
 from werkzeug.security import check_password_hash, generate_password_hash
 
 app = Flask(__name__)
-app.secret_key = "vaihda-tama-salainen-avain"
+app.secret_key = os.environ.get("SECRET_KEY", "dev-secret-key-change-me")
+APP_ENV = os.environ.get("APP_ENV", "development")
+
+app.config.update(
+    SESSION_COOKIE_HTTPONLY=True,
+    SESSION_COOKIE_SAMESITE="Lax",
+    SESSION_COOKIE_SECURE=APP_ENV == "production",
+)
+
+if app.secret_key == "dev-secret-key-change-me":
+    print("VAROITUS: SECRET_KEY ei ole asetettu. Käytössä on vain kehitykseen sopiva oletusavain.")
 
 DATABASE = "aamupainot.db"
 SQL_FILE = "database.sql"
@@ -225,4 +236,4 @@ def logout():
 init_db()
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=APP_ENV == "development")
