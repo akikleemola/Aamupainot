@@ -103,6 +103,10 @@ def clear_failed_logins(username):
     login_attempts.pop(username, None)
 
 
+def format_date(date_text):
+    return date.fromisoformat(date_text).strftime("%d/%m/%Y")
+
+
 def get_csrf_token():
     if "csrf_token" not in session:
         session["csrf_token"] = secrets.token_urlsafe(32)
@@ -183,16 +187,23 @@ def index():
         for item in reversed(weights)
     ]
     latest_weight = chart_data[-1]["weight"] if chart_data else None
-    latest_date = chart_data[-1]["date"] if chart_data else None
+    latest_date = format_date(chart_data[-1]["date"]) if chart_data else None
     first_weight = chart_data[0]["weight"] if chart_data else None
     total_change = None
+    display_weights = [
+        {
+            "date": format_date(item["date"]),
+            "weight": item["weight"],
+        }
+        for item in weights
+    ]
 
     if latest_weight is not None and first_weight is not None:
         total_change = round(latest_weight - first_weight, 1)
 
     return render_template(
         "index.html",
-        weights=weights,
+        weights=display_weights,
         chart_data=chart_data,
         latest_date=latest_date,
         latest_weight=latest_weight,
