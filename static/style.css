@@ -240,7 +240,42 @@ button:hover {
 }
 
 .auth-link {
+    margin: 18px 0 0;
     color: #9aa6b8;
+}
+
+.auth-page {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(340px, 440px);
+    gap: 24px;
+    align-items: center;
+    min-height: 100vh;
+}
+
+.auth-hero {
+    padding: 28px;
+    border: 1px solid rgba(148, 163, 184, 0.12);
+    border-radius: 18px;
+    background:
+        radial-gradient(circle at 16% 16%, rgba(246, 178, 26, 0.2), transparent 32%),
+        linear-gradient(135deg, rgba(15, 23, 42, 0.7), rgba(2, 6, 23, 0.32));
+    box-shadow: 0 28px 90px rgba(0, 0, 0, 0.3);
+}
+
+.auth-hero h1 {
+    max-width: 560px;
+}
+
+.auth-card {
+    padding: 28px;
+}
+
+.auth-card .panel-heading {
+    margin-bottom: 22px;
+}
+
+.auth-card button {
+    margin-top: 12px;
 }
 
 .chart-wrap {
@@ -314,6 +349,12 @@ button:hover {
     .app-header,
     .dashboard-grid {
         grid-template-columns: 1fr;
+    }
+
+    .auth-page {
+        grid-template-columns: 1fr;
+        align-items: start;
+        min-height: auto;
     }
 
     .app-header {

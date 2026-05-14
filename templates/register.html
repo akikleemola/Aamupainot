@@ -4,18 +4,28 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Luo tunnus</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=dark-fitness-3">
 </head>
 <body>
-    <main class="container">
-        <h1>Luo tunnus</h1>
-        <p class="intro">Tunnuksen avulla jokainen käyttäjä näkee omat painomerkintänsä.</p>
+    <main class="container auth-page">
+        <section class="auth-hero">
+            <p class="eyebrow">Aamupainosovellus</p>
+            <h1>Weight Tracker</h1>
+            <p class="intro">Luo oma tunnus ja pidä aamupainomerkinnät erillään muista käyttäjistä.</p>
+        </section>
 
-        {% for message in get_flashed_messages() %}
-            <p class="message">{{ message }}</p>
-        {% endfor %}
+        <section class="panel auth-card">
+            <div class="panel-heading">
+                <div>
+                    <p class="eyebrow">Get started</p>
+                    <h2>Luo tunnus</h2>
+                </div>
+            </div>
 
-        <section class="panel">
+            {% for message in get_flashed_messages() %}
+                <p class="message">{{ message }}</p>
+            {% endfor %}
+
             <form method="post" action="{{ url_for('register') }}">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
@@ -30,12 +40,12 @@
 
                 <button type="submit">Luo tunnus</button>
             </form>
-        </section>
 
-        <p class="auth-link">
-            Onko sinulla jo tunnus?
-            <a href="{{ url_for('login') }}">Kirjaudu sisään</a>
-        </p>
+            <p class="auth-link">
+                Onko sinulla jo tunnus?
+                <a href="{{ url_for('login') }}">Kirjaudu sisään</a>
+            </p>
+        </section>
     </main>
 </body>
 </html>

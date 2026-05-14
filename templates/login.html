@@ -4,18 +4,28 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kirjaudu sisään</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=dark-fitness-3">
 </head>
 <body>
-    <main class="container">
-        <h1>Kirjaudu sisään</h1>
-        <p class="intro">Kirjaudu sisään nähdäksesi omat aamupainosi.</p>
+    <main class="container auth-page">
+        <section class="auth-hero">
+            <p class="eyebrow">Aamupainosovellus</p>
+            <h1>Weight Tracker</h1>
+            <p class="intro">Kirjaudu sisään ja jatka aamupainon trendin seuraamista.</p>
+        </section>
 
-        {% for message in get_flashed_messages() %}
-            <p class="message">{{ message }}</p>
-        {% endfor %}
+        <section class="panel auth-card">
+            <div class="panel-heading">
+                <div>
+                    <p class="eyebrow">Welcome back</p>
+                    <h2>Kirjaudu sisään</h2>
+                </div>
+            </div>
 
-        <section class="panel">
+            {% for message in get_flashed_messages() %}
+                <p class="message">{{ message }}</p>
+            {% endfor %}
+
             <form method="post" action="{{ url_for('login') }}">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
@@ -27,12 +37,12 @@
 
                 <button type="submit">Kirjaudu sisään</button>
             </form>
-        </section>
 
-        <p class="auth-link">
-            Ei tunnusta vielä?
-            <a href="{{ url_for('register') }}">Luo tunnus</a>
-        </p>
+            <p class="auth-link">
+                Ei tunnusta vielä?
+                <a href="{{ url_for('register') }}">Luo tunnus</a>
+            </p>
+        </section>
     </main>
 </body>
 </html>
