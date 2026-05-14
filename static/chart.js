@@ -1,6 +1,18 @@
 const chartDataElement = document.getElementById("chart-data");
 const canvas = document.getElementById("weightChart");
-const chartData = chartDataElement ? JSON.parse(chartDataElement.textContent) : [];
+let chartData = [];
+
+if (chartDataElement) {
+    const chartDataText = chartDataElement.content
+        ? chartDataElement.content.textContent
+        : chartDataElement.textContent;
+
+    try {
+        chartData = JSON.parse(chartDataText.trim());
+    } catch (error) {
+        chartData = [];
+    }
+}
 
 if (canvas && chartData.length >= 2) {
     const context = canvas.getContext("2d");
