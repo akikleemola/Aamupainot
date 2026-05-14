@@ -31,6 +31,15 @@
         </section>
 
         <section class="panel">
+            <h2>Painon kehitys</h2>
+            {% if chart_data|length >= 2 %}
+                <canvas id="weightChart" class="weight-chart" aria-label="Painon kehityskaavio"></canvas>
+            {% else %}
+                <p class="note">Lisää vähintään kaksi painomerkintää, niin kehitys näkyy kaaviona.</p>
+            {% endif %}
+        </section>
+
+        <section class="panel">
             <h2>Aiemmat painot</h2>
             <ul class="weight-list">
                 {% for item in weights %}
@@ -44,5 +53,78 @@
             </ul>
         </section>
     </main>
+
+    <script>
+        const chartData = {{ chart_data|tojson }};
+        const canvas = document.getElementById("weightChart");
+
+        if (canvas && chartData.length >= 2) {
+            const context = canvas.getContext("2d");
+            const width = canvas.clientWidth;
+            const height = canvas.clientHeight;
+            const padding = 36;
+            const weights = chartData.map((item) => item.weight);
+            const minWeight = Math.min(...weights);
+            const maxWeight = Math.max(...weights);
+            const range = maxWeight - minWeight || 1;
+
+            canvas.width = width * window.devicePixelRatio;
+            canvas.height = height * window.devicePixelRatio;
+            context.scale(window.devicePixelRatio, window.devicePixelRatio);
+
+            function getX(index) {
+                const chartWidth = width - padding * 2;
+                return padding + (chartWidth / (chartData.length - 1)) * index;
+            }
+
+            function getY(weight) {
+                const chartHeight = height - padding * 2;
+                return padding + chartHeight - ((weight - minWeight) / range) * chartHeight;
+            }
+
+            context.clearRect(0, 0, width, height);
+
+            context.strokeStyle = "#dbe4e2";
+            context.lineWidth = 1;
+            context.beginPath();
+            context.moveTo(padding, padding);
+            context.lineTo(padding, height - padding);
+            context.lineTo(width - padding, height - padding);
+            context.stroke();
+
+            context.strokeStyle = "#2f7d6d";
+            context.lineWidth = 3;
+            context.beginPath();
+
+            chartData.forEach((item, index) => {
+                const x = getX(index);
+                const y = getY(item.weight);
+
+                if (index === 0) {
+                    context.moveTo(x, y);
+                } else {
+                    context.lineTo(x, y);
+                }
+            });
+
+            context.stroke();
+
+            context.fillStyle = "#2f7d6d";
+            chartData.forEach((item, index) => {
+                context.beginPath();
+                context.arc(getX(index), getY(item.weight), 4, 0, Math.PI * 2);
+                context.fill();
+            });
+
+            context.fillStyle = "#52616f";
+            context.font = "13px Arial, sans-serif";
+            context.textAlign = "left";
+            context.fillText(`${maxWeight.toFixed(1)} kg`, 4, padding + 4);
+            context.fillText(`${minWeight.toFixed(1)} kg`, 4, height - padding + 4);
+            context.fillText(chartData[0].date, padding, height - 8);
+            context.textAlign = "right";
+            context.fillText(chartData[chartData.length - 1].date, width - padding, height - 8);
+        }
+    </script>
 </body>
 </html>

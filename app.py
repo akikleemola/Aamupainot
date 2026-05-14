@@ -75,7 +75,17 @@ def index():
     ).fetchall()
     connection.close()
 
-    return render_template("index.html", weights=weights, username=session["username"])
+    chart_data = [
+        {"date": item["date"], "weight": item["weight"]}
+        for item in reversed(weights)
+    ]
+
+    return render_template(
+        "index.html",
+        weights=weights,
+        chart_data=chart_data,
+        username=session["username"],
+    )
 
 
 @app.route("/register", methods=["GET", "POST"])

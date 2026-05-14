@@ -103,6 +103,12 @@ button:hover {
     color: #52616f;
 }
 
+.weight-chart {
+    display: block;
+    width: 100%;
+    height: 260px;
+}
+
 .weight-list {
     display: grid;
     gap: 8px;
