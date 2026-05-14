@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kirjaudu sisään</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <main class="container">
+        <h1>Kirjaudu sisään</h1>
+        <p class="intro">Kirjaudu sisään nähdäksesi omat aamupainosi.</p>
+
+        {% for message in get_flashed_messages() %}
+            <p class="message">{{ message }}</p>
+        {% endfor %}
+
+        <section class="panel">
+            <form method="post" action="{{ url_for('login') }}">
+                <label for="username">Käyttäjänimi</label>
+                <input type="text" id="username" name="username" required>
+
+                <label for="password">Salasana</label>
+                <input type="password" id="password" name="password" required>
+
+                <button type="submit">Kirjaudu sisään</button>
+            </form>
+        </section>
+
+        <p class="auth-link">
+            Ei tunnusta vielä?
+            <a href="{{ url_for('register') }}">Luo tunnus</a>
+        </p>
+    </main>
+</body>
+</html>

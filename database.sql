@@ -1,0 +1,38 @@
+-- name: create_users
+CREATE TABLE IF NOT EXISTS users (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    username TEXT NOT NULL UNIQUE,
+    password_hash TEXT NOT NULL
+);
+
+-- name: create_weight_entries
+CREATE TABLE IF NOT EXISTS weight_entries (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER,
+    date TEXT NOT NULL,
+    weight REAL NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES users (id)
+);
+
+-- name: add_user_id_to_weight_entries
+ALTER TABLE weight_entries
+ADD COLUMN user_id INTEGER REFERENCES users (id);
+
+-- name: insert_user
+INSERT INTO users (username, password_hash)
+VALUES (?, ?);
+
+-- name: select_user_by_username
+SELECT id, username, password_hash
+FROM users
+WHERE username = ?;
+
+-- name: insert_weight_entry
+INSERT INTO weight_entries (user_id, date, weight)
+VALUES (?, ?, ?);
+
+-- name: select_weight_entries_for_user
+SELECT id, date, weight
+FROM weight_entries
+WHERE user_id = ?
+ORDER BY date DESC;
