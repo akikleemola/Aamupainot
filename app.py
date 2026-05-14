@@ -83,6 +83,12 @@ def register():
     if request.method == "POST":
         username = request.form["username"]
         password = request.form["password"]
+        password_confirm = request.form["password_confirm"]
+
+        if password != password_confirm:
+            flash("Salasanat eivät täsmää.")
+            return redirect(url_for("register"))
+
         password_hash = generate_password_hash(password)
 
         connection = get_db_connection()
