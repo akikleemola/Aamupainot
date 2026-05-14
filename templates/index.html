@@ -20,6 +20,10 @@
             </nav>
         </header>
 
+        {% for message in get_flashed_messages() %}
+            <p class="message">{{ message }}</p>
+        {% endfor %}
+
         <section class="stats-grid" aria-label="Painotilastot">
             <article class="stat-card">
                 <span>Viimeisin paino</span>
@@ -93,7 +97,7 @@
                         <input type="date" id="date" name="date" required>
 
                         <label for="weight">Paino (kg)</label>
-                        <input type="number" id="weight" name="weight" step="0.1" placeholder="Esim. 81.9" required>
+                        <input type="number" id="weight" name="weight" step="0.1" min="0.1" max="500" placeholder="Esim. 81.9" required>
 
                         <button type="submit">Lisää paino</button>
                     </form>

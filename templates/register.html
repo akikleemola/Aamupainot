@@ -18,7 +18,7 @@
         <section class="panel">
             <form method="post" action="{{ url_for('register') }}">
                 <label for="username">Käyttäjänimi</label>
-                <input type="text" id="username" name="username" required>
+                <input type="text" id="username" name="username" minlength="3" maxlength="30" pattern="[A-Za-z0-9_]+" required>
 
                 <label for="password">Salasana</label>
                 <input type="password" id="password" name="password" required>

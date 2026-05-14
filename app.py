@@ -1,4 +1,6 @@
+import re
 import sqlite3
+from datetime import date
 from functools import wraps
 
 from flask import Flask, flash, redirect, render_template, request, session, url_for
@@ -9,6 +11,7 @@ app.secret_key = "vaihda-tama-salainen-avain"
 
 DATABASE = "aamupainot.db"
 SQL_FILE = "database.sql"
+USERNAME_PATTERN = re.compile(r"^[A-Za-z0-9_]{3,30}$")
 
 
 def get_db_connection():
@@ -55,13 +58,24 @@ def login_required(route_function):
 @login_required
 def index():
     if request.method == "POST":
-        date = request.form["date"]
-        weight = request.form["weight"]
+        date_text = request.form["date"]
+        weight_text = request.form["weight"]
+
+        try:
+            date.fromisoformat(date_text)
+            weight = float(weight_text)
+        except ValueError:
+            flash("Tarkista päivämäärä ja paino.")
+            return redirect(url_for("index"))
+
+        if weight <= 0 or weight > 500:
+            flash("Painon pitää olla välillä 0-500 kg.")
+            return redirect(url_for("index"))
 
         connection = get_db_connection()
         connection.execute(
             get_sql("insert_weight_entry"),
-            (session["user_id"], date, weight),
+            (session["user_id"], date_text, weight),
         )
         connection.commit()
         connection.close()
@@ -102,9 +116,13 @@ def index():
 @app.route("/register", methods=["GET", "POST"])
 def register():
     if request.method == "POST":
-        username = request.form["username"]
+        username = request.form["username"].strip()
         password = request.form["password"]
         password_confirm = request.form["password_confirm"]
+
+        if not USERNAME_PATTERN.fullmatch(username):
+            flash("Käyttäjänimessä saa olla 3-30 kirjainta, numeroa tai alaviivaa.")
+            return redirect(url_for("register"))
 
         if password != password_confirm:
             flash("Salasanat eivät täsmää.")
@@ -136,7 +154,7 @@ def register():
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
-        username = request.form["username"]
+        username = request.form["username"].strip()
         password = request.form["password"]
 
         connection = get_db_connection()
