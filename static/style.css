@@ -366,9 +366,10 @@ button:hover {
 }
 
 .weight-list li {
-    display: flex;
-    justify-content: space-between;
-    gap: 16px;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 8px;
+    align-items: center;
     padding: 12px;
     border: 1px solid rgba(148, 163, 184, 0.12);
     border-radius: 14px;
@@ -378,6 +379,51 @@ button:hover {
 
 .weight-list strong {
     color: #f8fafc;
+}
+
+.entry-form {
+    display: grid;
+    grid-template-columns: minmax(130px, 1fr) minmax(90px, 0.7fr) auto;
+    gap: 8px;
+    align-items: center;
+}
+
+.entry-form input {
+    padding: 9px 10px;
+}
+
+.entry-form button,
+.delete-form button {
+    width: auto;
+    min-height: 40px;
+    margin-top: 0;
+    padding: 9px 12px;
+}
+
+.delete-form {
+    display: flex;
+}
+
+.danger-button {
+    color: #fecaca;
+    background: rgba(127, 29, 29, 0.72);
+    box-shadow: none;
+}
+
+.danger-button:hover {
+    background: rgba(153, 27, 27, 0.92);
+}
+
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
 }
 
 .empty-state {
@@ -425,6 +471,16 @@ button:hover {
 
     .stats-grid {
         grid-template-columns: 1fr;
+    }
+
+    .weight-list li,
+    .entry-form {
+        grid-template-columns: 1fr;
+    }
+
+    .entry-form button,
+    .delete-form button {
+        width: 100%;
     }
 }
 

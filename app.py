@@ -109,6 +109,19 @@ def format_date(date_text):
     return date.fromisoformat(date_text).strftime("%d/%m/%Y")
 
 
+def validate_weight_entry(date_text, weight_text):
+    try:
+        date.fromisoformat(date_text)
+        weight = float(weight_text)
+    except ValueError:
+        return None, "Tarkista päivämäärä ja paino."
+
+    if weight < MIN_WEIGHT or weight > MAX_WEIGHT:
+        return None, f"Painon pitää olla välillä {MIN_WEIGHT}-{MAX_WEIGHT} kg."
+
+    return weight, None
+
+
 def get_csrf_token():
     if "csrf_token" not in session:
         session["csrf_token"] = secrets.token_urlsafe(32)
@@ -185,16 +198,10 @@ def index():
     if request.method == "POST":
         date_text = request.form["date"]
         weight_text = request.form["weight"]
+        weight, error = validate_weight_entry(date_text, weight_text)
 
-        try:
-            date.fromisoformat(date_text)
-            weight = float(weight_text)
-        except ValueError:
-            flash("Tarkista päivämäärä ja paino.")
-            return redirect(url_for("index"))
-
-        if weight < MIN_WEIGHT or weight > MAX_WEIGHT:
-            flash(f"Painon pitää olla välillä {MIN_WEIGHT}-{MAX_WEIGHT} kg.")
+        if error:
+            flash(error)
             return redirect(url_for("index"))
 
         connection = get_db_connection()
@@ -224,7 +231,9 @@ def index():
     total_change = None
     display_weights = [
         {
+            "id": item["id"],
             "date": format_date(item["date"]),
+            "date_value": item["date"],
             "weight": item["weight"],
         }
         for item in weights
@@ -243,6 +252,44 @@ def index():
         weight_count=len(chart_data),
         username=session["username"],
     )
+
+
+@app.route("/weights/<int:entry_id>/edit", methods=["POST"])
+@login_required
+def edit_weight(entry_id):
+    date_text = request.form["date"]
+    weight_text = request.form["weight"]
+    weight, error = validate_weight_entry(date_text, weight_text)
+
+    if error:
+        flash(error)
+        return redirect(url_for("index"))
+
+    connection = get_db_connection()
+    connection.execute(
+        get_sql("update_weight_entry"),
+        (date_text, weight, entry_id, session["user_id"]),
+    )
+    connection.commit()
+    connection.close()
+
+    flash("Merkintä päivitetty.")
+    return redirect(url_for("index"))
+
+
+@app.route("/weights/<int:entry_id>/delete", methods=["POST"])
+@login_required
+def delete_weight(entry_id):
+    connection = get_db_connection()
+    connection.execute(
+        get_sql("delete_weight_entry"),
+        (entry_id, session["user_id"]),
+    )
+    connection.commit()
+    connection.close()
+
+    flash("Merkintä poistettu.")
+    return redirect(url_for("index"))
 
 
 @app.route("/register", methods=["GET", "POST"])

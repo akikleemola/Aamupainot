@@ -40,3 +40,12 @@ SELECT id, date, weight
 FROM weight_entries
 WHERE user_id = ?
 ORDER BY date DESC;
+
+-- name: update_weight_entry
+UPDATE weight_entries
+SET date = ?, weight = ?
+WHERE id = ? AND user_id = ?;
+
+-- name: delete_weight_entry
+DELETE FROM weight_entries
+WHERE id = ? AND user_id = ?;
