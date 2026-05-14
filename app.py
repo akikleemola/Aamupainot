@@ -58,6 +58,7 @@ def init_db():
         connection.execute(get_sql("add_user_id_to_weight_entries"))
     except sqlite3.OperationalError:
         pass
+    connection.execute(get_sql("create_weight_entries_user_date_index"))
     connection.commit()
     connection.close()
 

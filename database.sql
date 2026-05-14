@@ -18,6 +18,10 @@ CREATE TABLE IF NOT EXISTS weight_entries (
 ALTER TABLE weight_entries
 ADD COLUMN user_id INTEGER REFERENCES users (id);
 
+-- name: create_weight_entries_user_date_index
+CREATE INDEX IF NOT EXISTS index_weight_entries_user_date
+ON weight_entries (user_id, date DESC);
+
 -- name: insert_user
 INSERT INTO users (username, password_hash)
 VALUES (?, ?);
