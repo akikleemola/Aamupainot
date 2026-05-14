@@ -33,7 +33,9 @@
         <section class="panel">
             <h2>Painon kehitys</h2>
             {% if chart_data|length >= 2 %}
-                <canvas id="weightChart" class="weight-chart" aria-label="Painon kehityskaavio"></canvas>
+                <div class="chart-wrap">
+                    <canvas id="weightChart" class="weight-chart" aria-label="Painon kehityskaavio"></canvas>
+                </div>
             {% else %}
                 <p class="note">Lisää vähintään kaksi painomerkintää, niin kehitys näkyy kaaviona.</p>
             {% endif %}
@@ -60,70 +62,129 @@
 
         if (canvas && chartData.length >= 2) {
             const context = canvas.getContext("2d");
-            const width = canvas.clientWidth;
-            const height = canvas.clientHeight;
-            const padding = 36;
-            const weights = chartData.map((item) => item.weight);
-            const minWeight = Math.min(...weights);
-            const maxWeight = Math.max(...weights);
-            const range = maxWeight - minWeight || 1;
 
-            canvas.width = width * window.devicePixelRatio;
-            canvas.height = height * window.devicePixelRatio;
-            context.scale(window.devicePixelRatio, window.devicePixelRatio);
+            function drawChart() {
+                const width = canvas.clientWidth;
+                const height = canvas.clientHeight;
+                const pixelRatio = window.devicePixelRatio || 1;
+                const padding = {
+                    top: 56,
+                    right: 26,
+                    bottom: 48,
+                    left: 76,
+                };
+                const weights = chartData.map((item) => item.weight);
+                const minWeight = Math.min(...weights);
+                const maxWeight = Math.max(...weights);
+                const chartMin = Math.floor(minWeight) - 1;
+                const chartMax = Math.ceil(maxWeight) + 1;
+                const range = chartMax - chartMin || 1;
+                const chartWidth = width - padding.left - padding.right;
+                const chartHeight = height - padding.top - padding.bottom;
+                const yAxisValues = [];
 
-            function getX(index) {
-                const chartWidth = width - padding * 2;
-                return padding + (chartWidth / (chartData.length - 1)) * index;
-            }
-
-            function getY(weight) {
-                const chartHeight = height - padding * 2;
-                return padding + chartHeight - ((weight - minWeight) / range) * chartHeight;
-            }
-
-            context.clearRect(0, 0, width, height);
-
-            context.strokeStyle = "#dbe4e2";
-            context.lineWidth = 1;
-            context.beginPath();
-            context.moveTo(padding, padding);
-            context.lineTo(padding, height - padding);
-            context.lineTo(width - padding, height - padding);
-            context.stroke();
-
-            context.strokeStyle = "#2f7d6d";
-            context.lineWidth = 3;
-            context.beginPath();
-
-            chartData.forEach((item, index) => {
-                const x = getX(index);
-                const y = getY(item.weight);
-
-                if (index === 0) {
-                    context.moveTo(x, y);
-                } else {
-                    context.lineTo(x, y);
+                for (let value = chartMax; value >= chartMin; value -= 1) {
+                    yAxisValues.push(value);
                 }
-            });
 
-            context.stroke();
+                canvas.width = width * pixelRatio;
+                canvas.height = height * pixelRatio;
+                context.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
+                context.clearRect(0, 0, width, height);
 
-            context.fillStyle = "#2f7d6d";
-            chartData.forEach((item, index) => {
+                function getX(index) {
+                    return padding.left + (chartWidth / (chartData.length - 1)) * index;
+                }
+
+                function getY(weight) {
+                    return padding.top + chartHeight - ((weight - chartMin) / range) * chartHeight;
+                }
+
+                context.font = "13px Arial, sans-serif";
+                context.lineWidth = 1;
+
+                yAxisValues.forEach((value) => {
+                    const y = getY(value);
+
+                    context.strokeStyle = "#e3ebe9";
+                    context.beginPath();
+                    context.moveTo(padding.left, y);
+                    context.lineTo(width - padding.right, y);
+                    context.stroke();
+
+                    context.fillStyle = "#52616f";
+                    context.textAlign = "right";
+                    context.textBaseline = "middle";
+                    context.fillText(`${value} kg`, padding.left - 12, y);
+                });
+
+                context.strokeStyle = "#9fb8b2";
                 context.beginPath();
-                context.arc(getX(index), getY(item.weight), 4, 0, Math.PI * 2);
-                context.fill();
-            });
+                context.moveTo(padding.left, padding.top);
+                context.lineTo(padding.left, height - padding.bottom);
+                context.lineTo(width - padding.right, height - padding.bottom);
+                context.stroke();
 
-            context.fillStyle = "#52616f";
-            context.font = "13px Arial, sans-serif";
-            context.textAlign = "left";
-            context.fillText(`${maxWeight.toFixed(1)} kg`, 4, padding + 4);
-            context.fillText(`${minWeight.toFixed(1)} kg`, 4, height - padding + 4);
-            context.fillText(chartData[0].date, padding, height - 8);
-            context.textAlign = "right";
-            context.fillText(chartData[chartData.length - 1].date, width - padding, height - 8);
+                context.strokeStyle = "#2f7d6d";
+                context.lineWidth = 3;
+                context.lineJoin = "round";
+                context.lineCap = "round";
+                context.beginPath();
+
+                chartData.forEach((item, index) => {
+                    const x = getX(index);
+                    const y = getY(item.weight);
+
+                    if (index === 0) {
+                        context.moveTo(x, y);
+                    } else {
+                        context.lineTo(x, y);
+                    }
+                });
+
+                context.stroke();
+
+                chartData.forEach((item, index) => {
+                    const x = getX(index);
+                    const y = getY(item.weight);
+
+                    context.fillStyle = "#ffffff";
+                    context.strokeStyle = "#2f7d6d";
+                    context.lineWidth = 3;
+                    context.beginPath();
+                    context.arc(x, y, 5, 0, Math.PI * 2);
+                    context.fill();
+                    context.stroke();
+
+                    context.fillStyle = "#24313d";
+                    context.font = "bold 13px Arial, sans-serif";
+                    context.textAlign = "center";
+                    context.textBaseline = "bottom";
+                    context.fillText(`${item.weight.toFixed(1)} kg`, x, Math.max(y - 10, 18));
+                });
+
+                context.fillStyle = "#52616f";
+                context.font = "13px Arial, sans-serif";
+                context.textBaseline = "top";
+
+                chartData.forEach((item, index) => {
+                    if (chartData.length > 6 && index % Math.ceil(chartData.length / 6) !== 0 && index !== chartData.length - 1) {
+                        return;
+                    }
+
+                    const x = getX(index);
+                    context.textAlign = "center";
+                    context.fillText(formatDate(item.date), x, height - padding.bottom + 16);
+                });
+            }
+
+            function formatDate(dateText) {
+                const parts = dateText.split("-");
+                return `${parts[2]}.${parts[1]}`;
+            }
+
+            drawChart();
+            window.addEventListener("resize", drawChart);
         }
     </script>
 </body>
