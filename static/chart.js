@@ -4,6 +4,33 @@ const dateInput = document.getElementById("date");
 const datePickerButton = document.querySelector(".date-picker-button");
 let chartData = [];
 
+document.querySelectorAll(".entry-form").forEach((form) => {
+    form.addEventListener("submit", (event) => {
+        const dateValue = form.querySelector('input[name="date"]').value;
+        const weightValue = form.querySelector('input[name="weight"]').value;
+        const originalDate = form.dataset.originalDate;
+        const originalWeight = Number(form.dataset.originalWeight).toFixed(1);
+        const normalizedWeight = Number(weightValue).toFixed(1);
+
+        if (dateValue === originalDate && normalizedWeight === originalWeight) {
+            event.preventDefault();
+            return;
+        }
+
+        if (!confirm("Tallennetaanko muutokset tähän painomerkintään?")) {
+            event.preventDefault();
+        }
+    });
+});
+
+document.querySelectorAll(".delete-form").forEach((form) => {
+    form.addEventListener("submit", (event) => {
+        if (!confirm("Haluatko varmasti poistaa tämän painomerkinnän?")) {
+            event.preventDefault();
+        }
+    });
+});
+
 if (dateInput && datePickerButton) {
     datePickerButton.addEventListener("click", () => {
         if (dateInput.showPicker) {

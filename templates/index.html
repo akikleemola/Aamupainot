@@ -120,7 +120,7 @@
                     <ul class="weight-list">
                         {% for item in weights %}
                             <li>
-                                <form class="entry-form" method="post" action="{{ url_for('edit_weight', entry_id=item.id) }}">
+                                <form class="entry-form" method="post" action="{{ url_for('edit_weight', entry_id=item.id) }}" data-original-date="{{ item.date_value }}" data-original-weight="{{ item.weight }}">
                                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
                                     <label class="sr-only" for="entry-date-{{ item.id }}">Päivämäärä</label>
@@ -147,6 +147,6 @@
     </main>
 
     <template id="chart-data">{{ chart_data|tojson }}</template>
-    <script src="{{ url_for('static', filename='chart.js') }}?v=3" defer></script>
+    <script src="{{ url_for('static', filename='chart.js') }}?v=4" defer></script>
 </body>
 </html>
