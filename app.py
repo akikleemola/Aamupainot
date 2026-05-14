@@ -30,6 +30,8 @@ USERNAME_PATTERN = re.compile(r"^[A-Za-z0-9_]{3,30}$")
 MIN_PASSWORD_LENGTH = 4
 MAX_LOGIN_ATTEMPTS = 5
 LOGIN_LOCK_TIME = timedelta(minutes=5)
+MIN_WEIGHT = 20
+MAX_WEIGHT = 250
 login_attempts = {}
 
 
@@ -191,8 +193,8 @@ def index():
             flash("Tarkista päivämäärä ja paino.")
             return redirect(url_for("index"))
 
-        if weight <= 0 or weight > 500:
-            flash("Painon pitää olla välillä 0-500 kg.")
+        if weight < MIN_WEIGHT or weight > MAX_WEIGHT:
+            flash(f"Painon pitää olla välillä {MIN_WEIGHT}-{MAX_WEIGHT} kg.")
             return redirect(url_for("index"))
 
         connection = get_db_connection()
