@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Aamupainosovellus</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=dark-fitness-3">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=dark-fitness-5">
 </head>
 <body>
     <main class="container">
@@ -96,7 +96,11 @@
                         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
                         <label for="date">Päivämäärä</label>
-                        <input type="date" id="date" name="date" required>
+                        <span class="date-field">
+                            <input type="date" id="date" name="date" required>
+                            <button class="date-picker-button" type="button" aria-label="Avaa kalenteri">▦</button>
+                        </span>
+                        <small class="field-hint">Valitse päivä kentän oikean reunan kalenterista.</small>
 
                         <label for="weight">Paino (kg)</label>
                         <input type="number" id="weight" name="weight" step="0.1" min="0.1" max="500" placeholder="Esim. 81.9" required>
@@ -129,6 +133,6 @@
     </main>
 
     <template id="chart-data">{{ chart_data|tojson }}</template>
-    <script src="{{ url_for('static', filename='chart.js') }}?v=2" defer></script>
+    <script src="{{ url_for('static', filename='chart.js') }}?v=3" defer></script>
 </body>
 </html>

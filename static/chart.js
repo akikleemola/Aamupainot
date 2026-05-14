@@ -1,6 +1,19 @@
 const chartDataElement = document.getElementById("chart-data");
 const canvas = document.getElementById("weightChart");
+const dateInput = document.getElementById("date");
+const datePickerButton = document.querySelector(".date-picker-button");
 let chartData = [];
+
+if (dateInput && datePickerButton) {
+    datePickerButton.addEventListener("click", () => {
+        if (dateInput.showPicker) {
+            dateInput.showPicker();
+            return;
+        }
+
+        dateInput.focus();
+    });
+}
 
 if (chartDataElement) {
     const chartDataText = chartDataElement.content

@@ -207,6 +207,51 @@ input::placeholder {
     color: #64748b;
 }
 
+input[type="date"] {
+    color-scheme: dark;
+    padding-right: 46px;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator {
+    cursor: pointer;
+    opacity: 0;
+}
+
+.date-field {
+    position: relative;
+    display: block;
+}
+
+.date-picker-button {
+    position: absolute;
+    right: 14px;
+    top: 50%;
+    width: 22px;
+    height: 22px;
+    padding: 0;
+    border: 1px solid rgba(246, 178, 26, 0.9);
+    border-radius: 6px;
+    margin: 0;
+    color: #f6b21a;
+    background: rgba(246, 178, 26, 0.08);
+    box-shadow: none;
+    font-size: 17px;
+    line-height: 19px;
+    text-align: center;
+    transform: translateY(-50%);
+    cursor: pointer;
+}
+
+.date-picker-button:hover {
+    background: rgba(246, 178, 26, 0.16);
+}
+
+.field-hint {
+    margin-top: -4px;
+    color: #9aa6b8;
+    font-size: 0.82rem;
+}
+
 button {
     width: 100%;
     margin-top: 8px;
