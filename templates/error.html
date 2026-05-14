@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ error_title }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=dark-fitness-5">
+</head>
+<body>
+    <main class="container auth-page">
+        <section class="auth-hero">
+            <p class="eyebrow">Aamupainosovellus</p>
+            <h1>Weight Tracker</h1>
+            <p class="intro">Pidetään näkymä rauhallisena myös silloin, kun jokin menee sivupolulle.</p>
+        </section>
+
+        <section class="panel auth-card error-card">
+            <p class="error-code">{{ error_code }}</p>
+            <div class="panel-heading">
+                <div>
+                    <p class="eyebrow">Virhe</p>
+                    <h2>{{ error_title }}</h2>
+                </div>
+            </div>
+            <p class="note">{{ error_message }}</p>
+            <p class="auth-link">
+                <a href="{{ url_for('index') }}">Palaa sovellukseen</a>
+            </p>
+        </section>
+    </main>
+</body>
+</html>

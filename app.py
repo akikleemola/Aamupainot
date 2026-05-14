@@ -147,6 +147,36 @@ def add_security_headers(response):
     return response
 
 
+@app.errorhandler(400)
+def bad_request(error):
+    return render_template(
+        "error.html",
+        error_code=400,
+        error_title="Pyyntöä ei voitu käsitellä",
+        error_message="Palaa takaisin ja yritä uudelleen.",
+    ), 400
+
+
+@app.errorhandler(404)
+def page_not_found(error):
+    return render_template(
+        "error.html",
+        error_code=404,
+        error_title="Sivua ei löytynyt",
+        error_message="Tarkista osoite tai palaa sovellukseen.",
+    ), 404
+
+
+@app.errorhandler(500)
+def internal_server_error(error):
+    return render_template(
+        "error.html",
+        error_code=500,
+        error_title="Jokin meni pieleen",
+        error_message="Yritä hetken päästä uudelleen.",
+    ), 500
+
+
 @app.route("/", methods=["GET", "POST"])
 @login_required
 def index():
