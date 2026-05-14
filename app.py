@@ -3,6 +3,8 @@ import re
 import secrets
 import sqlite3
 from datetime import date
+from datetime import datetime
+from datetime import timedelta
 from functools import wraps
 
 from flask import Flask, abort, flash, redirect, render_template, request, session, url_for
@@ -25,6 +27,10 @@ if app.secret_key == "dev-secret-key-change-me":
 DATABASE = "aamupainot.db"
 SQL_FILE = "database.sql"
 USERNAME_PATTERN = re.compile(r"^[A-Za-z0-9_]{3,30}$")
+MIN_PASSWORD_LENGTH = 4
+MAX_LOGIN_ATTEMPTS = 5
+LOGIN_LOCK_TIME = timedelta(minutes=5)
+login_attempts = {}
 
 
 def get_db_connection():
@@ -65,6 +71,35 @@ def login_required(route_function):
         return route_function(*args, **kwargs)
 
     return wrapper
+
+
+def is_login_locked(username):
+    attempts = login_attempts.get(username)
+
+    if not attempts:
+        return False
+
+    locked_until = attempts.get("locked_until")
+
+    if locked_until and locked_until > datetime.now():
+        return True
+
+    if locked_until:
+        login_attempts.pop(username, None)
+
+    return False
+
+
+def record_failed_login(username):
+    attempts = login_attempts.setdefault(username, {"count": 0, "locked_until": None})
+    attempts["count"] += 1
+
+    if attempts["count"] >= MAX_LOGIN_ATTEMPTS:
+        attempts["locked_until"] = datetime.now() + LOGIN_LOCK_TIME
+
+
+def clear_failed_logins(username):
+    login_attempts.pop(username, None)
 
 
 def get_csrf_token():
@@ -177,6 +212,10 @@ def register():
             flash("Käyttäjänimessä saa olla 3-30 kirjainta, numeroa tai alaviivaa.")
             return redirect(url_for("register"))
 
+        if len(password) < MIN_PASSWORD_LENGTH:
+            flash(f"Salasanan pitää olla vähintään {MIN_PASSWORD_LENGTH} merkkiä pitkä.")
+            return redirect(url_for("register"))
+
         if password != password_confirm:
             flash("Salasanat eivät täsmää.")
             return redirect(url_for("register"))
@@ -210,6 +249,10 @@ def login():
         username = request.form["username"].strip()
         password = request.form["password"]
 
+        if is_login_locked(username):
+            flash("Liian monta epäonnistunutta kirjautumisyritystä. Yritä hetken päästä uudelleen.")
+            return redirect(url_for("login"))
+
         connection = get_db_connection()
         user = connection.execute(
             get_sql("select_user_by_username"),
@@ -218,10 +261,12 @@ def login():
         connection.close()
 
         if user and check_password_hash(user["password_hash"], password):
+            clear_failed_logins(username)
             session["user_id"] = user["id"]
             session["username"] = user["username"]
             return redirect(url_for("index"))
 
+        record_failed_login(username)
         flash("Käyttäjänimi tai salasana on väärin.")
 
     return render_template("login.html")
