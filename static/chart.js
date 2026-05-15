@@ -1,8 +1,44 @@
 const chartDataElement = document.getElementById("chart-data");
 const canvas = document.getElementById("weightChart");
-const dateInput = document.getElementById("date");
-const datePickerButton = document.querySelector(".date-picker-button");
 let chartData = [];
+
+function formatDisplayDate(dateText) {
+    if (!dateText) {
+        return "";
+    }
+
+    const parts = dateText.split("-");
+    return `${parts[2]}/${parts[1]}/${parts[0]}`;
+}
+
+document.querySelectorAll(".date-field").forEach((field) => {
+    const displayInput = field.querySelector(".date-display");
+    const nativeInput = field.querySelector(".native-date");
+    const pickerButton = field.querySelector(".date-picker-button");
+
+    if (!displayInput || !nativeInput || !pickerButton) {
+        return;
+    }
+
+    displayInput.value = formatDisplayDate(nativeInput.value);
+
+    nativeInput.addEventListener("change", () => {
+        displayInput.value = formatDisplayDate(nativeInput.value);
+    });
+
+    function openDatePicker() {
+        if (nativeInput.showPicker) {
+            nativeInput.showPicker();
+            return;
+        }
+
+        nativeInput.focus();
+        nativeInput.click();
+    }
+
+    displayInput.addEventListener("click", openDatePicker);
+    pickerButton.addEventListener("click", openDatePicker);
+});
 
 document.querySelectorAll(".entry-form").forEach((form) => {
     form.addEventListener("submit", (event) => {
@@ -30,17 +66,6 @@ document.querySelectorAll(".delete-form").forEach((form) => {
         }
     });
 });
-
-if (dateInput && datePickerButton) {
-    datePickerButton.addEventListener("click", () => {
-        if (dateInput.showPicker) {
-            dateInput.showPicker();
-            return;
-        }
-
-        dateInput.focus();
-    });
-}
 
 if (chartDataElement) {
     const chartDataText = chartDataElement.content

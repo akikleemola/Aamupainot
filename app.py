@@ -109,17 +109,29 @@ def format_date(date_text):
     return date.fromisoformat(date_text).strftime("%d/%m/%Y")
 
 
+def parse_date_input(date_text):
+    date_text = date_text.strip()
+
+    for date_format in ("%d/%m/%Y", "%Y-%m-%d"):
+        try:
+            return datetime.strptime(date_text, date_format).date().isoformat()
+        except ValueError:
+            pass
+
+    raise ValueError
+
+
 def validate_weight_entry(date_text, weight_text):
     try:
-        date.fromisoformat(date_text)
+        date_text = parse_date_input(date_text)
         weight = float(weight_text)
     except ValueError:
-        return None, "Tarkista päivämäärä ja paino."
+        return None, None, "Tarkista päivämäärä muodossa pp/kk/vvvv ja paino."
 
     if weight < MIN_WEIGHT or weight > MAX_WEIGHT:
-        return None, f"Painon pitää olla välillä {MIN_WEIGHT}-{MAX_WEIGHT} kg."
+        return None, None, f"Painon pitää olla välillä {MIN_WEIGHT}-{MAX_WEIGHT} kg."
 
-    return weight, None
+    return date_text, weight, None
 
 
 def date_already_has_weight(connection, user_id, date_text, entry_id=None):
@@ -213,7 +225,7 @@ def index():
     if request.method == "POST":
         date_text = request.form["date"]
         weight_text = request.form["weight"]
-        weight, error = validate_weight_entry(date_text, weight_text)
+        date_text, weight, error = validate_weight_entry(date_text, weight_text)
 
         if error:
             flash(error)
@@ -279,7 +291,7 @@ def index():
 def edit_weight(entry_id):
     date_text = request.form["date"]
     weight_text = request.form["weight"]
-    weight, error = validate_weight_entry(date_text, weight_text)
+    date_text, weight, error = validate_weight_entry(date_text, weight_text)
 
     if error:
         flash(error)

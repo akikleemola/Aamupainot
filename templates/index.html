@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Aamupainosovellus</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=dark-fitness-6">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=dark-fitness-9">
 </head>
 <body>
     <main class="container">
@@ -97,7 +97,8 @@
 
                         <label for="date">Päivämäärä</label>
                         <span class="date-field">
-                            <input type="date" id="date" name="date" required>
+                            <input class="date-display" type="text" placeholder="pp/kk/vvvv" readonly>
+                            <input class="native-date" type="date" id="date" name="date" required>
                             <button class="date-picker-button" type="button" aria-label="Avaa kalenteri">▦</button>
                         </span>
                         <small class="field-hint">Valitse päivä kentän oikean reunan kalenterista.</small>
@@ -124,7 +125,11 @@
                                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
                                     <label class="sr-only" for="entry-date-{{ item.id }}">Päivämäärä</label>
-                                    <input type="date" id="entry-date-{{ item.id }}" name="date" value="{{ item.date_value }}" required>
+                                    <span class="date-field">
+                                        <input class="date-display" type="text" value="{{ item.date }}" readonly>
+                                        <input class="native-date" type="date" id="entry-date-{{ item.id }}" name="date" value="{{ item.date_value }}" required>
+                                        <button class="date-picker-button" type="button" aria-label="Avaa kalenteri">▦</button>
+                                    </span>
 
                                     <label class="sr-only" for="entry-weight-{{ item.id }}">Paino</label>
                                     <input type="number" id="entry-weight-{{ item.id }}" name="weight" value="{{ item.weight }}" step="0.1" min="20" max="250" required>
@@ -147,6 +152,6 @@
     </main>
 
     <template id="chart-data">{{ chart_data|tojson }}</template>
-    <script src="{{ url_for('static', filename='chart.js') }}?v=4" defer></script>
+    <script src="{{ url_for('static', filename='chart.js') }}?v=5" defer></script>
 </body>
 </html>
