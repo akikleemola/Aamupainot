@@ -281,6 +281,10 @@ def index():
     latest_weight = chart_data[-1]["weight"] if chart_data else None
     latest_date = format_date(chart_data[-1]["date"]) if chart_data else None
     first_weight = chart_data[0]["weight"] if chart_data else None
+    previous_weight = chart_data[-2]["weight"] if len(chart_data) >= 2 else None
+    previous_change = None
+    recent_average = None
+    recent_average_count = min(len(chart_data), 7)
     total_change = None
     display_weights = [
         {
@@ -296,12 +300,22 @@ def index():
     if latest_weight is not None and first_weight is not None:
         total_change = round(latest_weight - first_weight, 1)
 
+    if latest_weight is not None and previous_weight is not None:
+        previous_change = round(latest_weight - previous_weight, 1)
+
+    if chart_data:
+        recent_weights = [item["weight"] for item in chart_data[-7:]]
+        recent_average = round(sum(recent_weights) / len(recent_weights), 1)
+
     return render_template(
         "index.html",
         weights=display_weights,
         chart_data=chart_data,
         latest_date=latest_date,
         latest_weight=latest_weight,
+        previous_change=previous_change,
+        recent_average=recent_average,
+        recent_average_count=recent_average_count,
         total_change=total_change,
         weight_count=len(chart_data),
         username=session["username"],

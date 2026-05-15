@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Aamupainosovellus</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=dark-fitness-11">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=dark-fitness-12">
 </head>
 <body>
     <main class="container">
@@ -37,6 +37,42 @@
                 <small>
                     {% if latest_date %}
                         {{ latest_date }}
+                    {% else %}
+                        Ei merkintöjä
+                    {% endif %}
+                </small>
+            </article>
+
+            <article class="stat-card">
+                <span>Muutos edelliseen</span>
+                <strong>
+                    {% if previous_change is not none %}
+                        {{ "%+.1f"|format(previous_change) }} kg
+                    {% else %}
+                        -
+                    {% endif %}
+                </strong>
+                <small>
+                    {% if previous_change is not none %}
+                        Viimeisestä merkinnästä
+                    {% else %}
+                        Tarvitsee kaksi merkintää
+                    {% endif %}
+                </small>
+            </article>
+
+            <article class="stat-card">
+                <span>Keskiarvo</span>
+                <strong>
+                    {% if recent_average is not none %}
+                        {{ recent_average }} kg
+                    {% else %}
+                        -
+                    {% endif %}
+                </strong>
+                <small>
+                    {% if recent_average is not none %}
+                        Viimeisestä {{ recent_average_count }} merkinnästä
                     {% else %}
                         Ei merkintöjä
                     {% endif %}
