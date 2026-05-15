@@ -135,10 +135,16 @@
                         <div class="chart-wrap">
                             <canvas id="weightChart" class="weight-chart" aria-label="Painon kehityskaavio"></canvas>
                         </div>
+                    {% elif chart_data|length == 1 %}
+                        <div class="empty-state">
+                            <strong>Ensimmäinen merkintä tallennettu</strong>
+                            <p>{{ latest_date }} - {{ latest_weight }} kg</p>
+                            <p>Lisää vielä yksi merkintä, niin näet kehityksen kaaviona.</p>
+                        </div>
                     {% else %}
                         <div class="empty-state">
-                            <strong>Kaavio odottaa dataa</strong>
-                            <p>Lisää vähintään kaksi painomerkintää, niin kehitys näkyy tässä.</p>
+                            <strong>Kaavio odottaa ensimmäistä merkintää</strong>
+                            <p>Lisää aamupaino, niin se näkyy tässä.</p>
                         </div>
                     {% endif %}
                 </section>
