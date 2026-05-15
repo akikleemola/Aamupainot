@@ -430,7 +430,6 @@ button:hover {
 
 .weight-list li {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
     gap: 8px;
     align-items: start;
     padding: 12px;
@@ -442,6 +441,19 @@ button:hover {
 
 .weight-list strong {
     color: #f8fafc;
+}
+
+.summary-entry {
+    display: grid;
+    grid-template-columns: minmax(130px, 1fr) minmax(90px, 0.7fr) minmax(100px, 0.8fr);
+    gap: 8px;
+    align-items: center;
+}
+
+.summary-entry small {
+    grid-column: 1 / -1;
+    color: #9aa6b8;
+    font-size: 0.9rem;
 }
 
 .entry-form {
