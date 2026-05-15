@@ -496,6 +496,10 @@ button:hover {
     margin: 0 auto;
 }
 
+.settings-panel + .settings-panel {
+    margin-top: 16px;
+}
+
 .history-list {
     display: grid;
     gap: 12px;

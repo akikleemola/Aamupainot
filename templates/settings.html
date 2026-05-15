@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Asetukset</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=dark-fitness-15">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=dark-fitness-23">
 </head>
 <body>
     <main class="container">
@@ -36,12 +36,33 @@
 
             <form method="post" action="{{ url_for('settings') }}">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <input type="hidden" name="action" value="target_weight">
 
                 <label for="target_weight">Tavoitepaino (kg)</label>
                 <input type="number" id="target_weight" name="target_weight" value="{{ target_weight or '' }}" step="0.1" min="20" max="250" placeholder="Esim. 70.0">
                 <small class="field-hint">Voit jättää kentän tyhjäksi, jos et halua asettaa tavoitetta.</small>
 
-                <button type="submit">Tallenna asetukset</button>
+                <button type="submit">Tallenna tavoitepaino</button>
+            </form>
+        </section>
+
+        <section class="panel settings-panel">
+            <div class="panel-heading">
+                <div>
+                    <p class="eyebrow">Account</p>
+                    <h2>Käyttäjänimi</h2>
+                </div>
+            </div>
+
+            <form method="post" action="{{ url_for('settings') }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <input type="hidden" name="action" value="username">
+
+                <label for="username">Käyttäjänimi</label>
+                <input type="text" id="username" name="username" value="{{ username }}" minlength="3" maxlength="30" pattern="[A-Za-z0-9_]+" required>
+                <small class="field-hint">Käyttäjänimessä saa olla 3-30 kirjainta, numeroa tai alaviivaa.</small>
+
+                <button type="submit">Tallenna käyttäjänimi</button>
             </form>
         </section>
     </main>

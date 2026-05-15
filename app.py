@@ -458,22 +458,61 @@ def history():
 @login_required
 def settings():
     if request.method == "POST":
-        target_weight_text = request.form.get("target_weight", "")
-        target_weight, error = validate_target_weight(target_weight_text)
+        action = request.form.get("action")
 
-        if error:
-            flash(error)
+        if action == "target_weight":
+            target_weight_text = request.form.get("target_weight", "")
+            target_weight, error = validate_target_weight(target_weight_text)
+
+            if error:
+                flash(error)
+                return redirect(url_for("settings"))
+
+            connection = get_db_connection()
+            connection.execute(
+                get_sql("update_user_settings"),
+                (target_weight, session["user_id"]),
+            )
+            connection.commit()
+            connection.close()
+
+            flash("Tavoitepaino tallennettu.")
             return redirect(url_for("settings"))
 
-        connection = get_db_connection()
-        connection.execute(
-            get_sql("update_user_settings"),
-            (target_weight, session["user_id"]),
-        )
-        connection.commit()
-        connection.close()
+        if action == "username":
+            username = request.form.get("username", "").strip()
 
-        flash("Asetukset tallennettu.")
+            if not USERNAME_PATTERN.fullmatch(username):
+                flash("Käyttäjänimessä saa olla 3-30 kirjainta, numeroa tai alaviivaa.")
+                return redirect(url_for("settings"))
+
+            if username == session["username"]:
+                flash("Käyttäjänimi on jo käytössäsi.")
+                return redirect(url_for("settings"))
+
+            connection = get_db_connection()
+            existing_user = connection.execute(
+                get_sql("select_user_by_username"),
+                (username,),
+            ).fetchone()
+
+            if existing_user:
+                connection.close()
+                flash("Käyttäjänimi on jo käytössä.")
+                return redirect(url_for("settings"))
+
+            connection.execute(
+                get_sql("update_username"),
+                (username, session["user_id"]),
+            )
+            connection.commit()
+            connection.close()
+
+            session["username"] = username
+            flash("Käyttäjänimi päivitetty.")
+            return redirect(url_for("settings"))
+
+        flash("Asetuksia ei voitu tallentaa.")
         return redirect(url_for("settings"))
 
     connection = get_db_connection()
@@ -490,7 +529,7 @@ def settings():
     return render_template(
         "settings.html",
         target_weight=user_settings["target_weight"],
-        username=session["username"],
+        username=user_settings["username"],
     )
 
 

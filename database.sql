@@ -51,6 +51,11 @@ UPDATE users
 SET target_weight = ?
 WHERE id = ?;
 
+-- name: update_username
+UPDATE users
+SET username = ?
+WHERE id = ?;
+
 -- name: insert_weight_entry
 INSERT INTO weight_entries (user_id, date, weight, note)
 VALUES (?, ?, ?, ?);
