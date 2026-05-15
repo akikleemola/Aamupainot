@@ -41,6 +41,16 @@ FROM weight_entries
 WHERE user_id = ?
 ORDER BY date DESC;
 
+-- name: select_weight_entry_for_user_date
+SELECT id
+FROM weight_entries
+WHERE user_id = ? AND date = ?;
+
+-- name: select_other_weight_entry_for_user_date
+SELECT id
+FROM weight_entries
+WHERE user_id = ? AND date = ? AND id != ?;
+
 -- name: update_weight_entry
 UPDATE weight_entries
 SET date = ?, weight = ?

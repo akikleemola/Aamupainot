@@ -122,6 +122,21 @@ def validate_weight_entry(date_text, weight_text):
     return weight, None
 
 
+def date_already_has_weight(connection, user_id, date_text, entry_id=None):
+    if entry_id is None:
+        existing_entry = connection.execute(
+            get_sql("select_weight_entry_for_user_date"),
+            (user_id, date_text),
+        ).fetchone()
+    else:
+        existing_entry = connection.execute(
+            get_sql("select_other_weight_entry_for_user_date"),
+            (user_id, date_text, entry_id),
+        ).fetchone()
+
+    return existing_entry is not None
+
+
 def get_csrf_token():
     if "csrf_token" not in session:
         session["csrf_token"] = secrets.token_urlsafe(32)
@@ -205,6 +220,11 @@ def index():
             return redirect(url_for("index"))
 
         connection = get_db_connection()
+        if date_already_has_weight(connection, session["user_id"], date_text):
+            connection.close()
+            flash("Tälle päivälle on jo painomerkintä.")
+            return redirect(url_for("index"))
+
         connection.execute(
             get_sql("insert_weight_entry"),
             (session["user_id"], date_text, weight),
@@ -266,6 +286,11 @@ def edit_weight(entry_id):
         return redirect(url_for("index"))
 
     connection = get_db_connection()
+    if date_already_has_weight(connection, session["user_id"], date_text, entry_id):
+        connection.close()
+        flash("Tälle päivälle on jo painomerkintä.")
+        return redirect(url_for("index"))
+
     connection.execute(
         get_sql("update_weight_entry"),
         (date_text, weight, entry_id, session["user_id"]),
