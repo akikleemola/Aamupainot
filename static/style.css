@@ -339,6 +339,12 @@ button:hover {
     font-size: 0.95rem;
 }
 
+.section-note {
+    margin: 8px 0 0;
+    color: #9aa6b8;
+    font-size: 0.9rem;
+}
+
 .message {
     padding: 12px;
     border: 1px solid rgba(246, 178, 26, 0.4);
