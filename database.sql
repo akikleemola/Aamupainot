@@ -2,8 +2,13 @@
 CREATE TABLE IF NOT EXISTS users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     username TEXT NOT NULL UNIQUE,
-    password_hash TEXT NOT NULL
+    password_hash TEXT NOT NULL,
+    target_weight REAL
 );
+
+-- name: add_target_weight_to_users
+ALTER TABLE users
+ADD COLUMN target_weight REAL;
 
 -- name: create_weight_entries
 CREATE TABLE IF NOT EXISTS weight_entries (
@@ -32,9 +37,19 @@ INSERT INTO users (username, password_hash)
 VALUES (?, ?);
 
 -- name: select_user_by_username
-SELECT id, username, password_hash
+SELECT id, username, password_hash, target_weight
 FROM users
 WHERE username = ?;
+
+-- name: select_user_settings
+SELECT username, target_weight
+FROM users
+WHERE id = ?;
+
+-- name: update_user_settings
+UPDATE users
+SET target_weight = ?
+WHERE id = ?;
 
 -- name: insert_weight_entry
 INSERT INTO weight_entries (user_id, date, weight, note)

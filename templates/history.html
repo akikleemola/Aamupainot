@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Aiemmat painot</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=dark-fitness-14">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=dark-fitness-15">
 </head>
 <body>
     <main class="container">
@@ -17,6 +17,7 @@
             <nav class="topbar">
                 <span>{{ username }}</span>
                 <a href="{{ url_for('index') }}">Etusivu</a>
+                <a href="{{ url_for('settings') }}">Asetukset</a>
                 <a href="{{ url_for('logout') }}">Kirjaudu ulos</a>
             </nav>
         </header>

@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Asetukset</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=dark-fitness-15">
+</head>
+<body>
+    <main class="container">
+        <header class="app-header">
+            <div>
+                <p class="eyebrow">Aamupainosovellus</p>
+                <h1>Asetukset</h1>
+                <p class="intro">Tallenna tavoitepaino, jotta sovellus voi myöhemmin näyttää etenemisen tavoitetta kohti.</p>
+            </div>
+            <nav class="topbar">
+                <span>{{ username }}</span>
+                <a href="{{ url_for('index') }}">Etusivu</a>
+                <a href="{{ url_for('history') }}">Aiemmat painot</a>
+                <a href="{{ url_for('logout') }}">Kirjaudu ulos</a>
+            </nav>
+        </header>
+
+        {% for message in get_flashed_messages() %}
+            <p class="message">{{ message }}</p>
+        {% endfor %}
+
+        <section class="panel settings-panel">
+            <div class="panel-heading">
+                <div>
+                    <p class="eyebrow">Settings</p>
+                    <h2>Tavoitepaino</h2>
+                </div>
+            </div>
+
+            <form method="post" action="{{ url_for('settings') }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+                <label for="target_weight">Tavoitepaino (kg)</label>
+                <input type="number" id="target_weight" name="target_weight" value="{{ target_weight or '' }}" step="0.1" min="20" max="250" placeholder="Esim. 70.0">
+                <small class="field-hint">Voit jättää kentän tyhjäksi, jos et halua asettaa tavoitetta.</small>
+
+                <button type="submit">Tallenna asetukset</button>
+            </form>
+        </section>
+    </main>
+</body>
+</html>

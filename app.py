@@ -56,6 +56,10 @@ def get_sql(command_name):
 def init_db():
     connection = get_db_connection()
     connection.execute(get_sql("create_users"))
+    try:
+        connection.execute(get_sql("add_target_weight_to_users"))
+    except sqlite3.OperationalError:
+        pass
     connection.execute(get_sql("create_weight_entries"))
     try:
         connection.execute(get_sql("add_user_id_to_weight_entries"))
@@ -146,6 +150,23 @@ def validate_note(note_text):
         return None, f"Muistiinpano saa olla enintään {MAX_NOTE_LENGTH} merkkiä pitkä."
 
     return note, None
+
+
+def validate_target_weight(weight_text):
+    weight_text = weight_text.strip()
+
+    if not weight_text:
+        return None, None
+
+    try:
+        weight = float(weight_text)
+    except ValueError:
+        return None, "Tarkista tavoitepaino."
+
+    if weight < MIN_WEIGHT or weight > MAX_WEIGHT:
+        return None, f"Tavoitepainon pitää olla välillä {MIN_WEIGHT}-{MAX_WEIGHT} kg."
+
+    return weight, None
 
 
 def build_display_weights(weights):
@@ -379,6 +400,46 @@ def history():
     return render_template(
         "history.html",
         weights=build_display_weights(weights),
+        username=session["username"],
+    )
+
+
+@app.route("/settings", methods=["GET", "POST"])
+@login_required
+def settings():
+    if request.method == "POST":
+        target_weight_text = request.form.get("target_weight", "")
+        target_weight, error = validate_target_weight(target_weight_text)
+
+        if error:
+            flash(error)
+            return redirect(url_for("settings"))
+
+        connection = get_db_connection()
+        connection.execute(
+            get_sql("update_user_settings"),
+            (target_weight, session["user_id"]),
+        )
+        connection.commit()
+        connection.close()
+
+        flash("Asetukset tallennettu.")
+        return redirect(url_for("settings"))
+
+    connection = get_db_connection()
+    user_settings = connection.execute(
+        get_sql("select_user_settings"),
+        (session["user_id"],),
+    ).fetchone()
+    connection.close()
+
+    if user_settings is None:
+        session.clear()
+        return redirect(url_for("login"))
+
+    return render_template(
+        "settings.html",
+        target_weight=user_settings["target_weight"],
         username=session["username"],
     )
 
