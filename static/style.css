@@ -494,6 +494,28 @@ button:hover {
     list-style: none;
 }
 
+.filter-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+.filter-tabs a {
+    padding: 8px 12px;
+    border: 1px solid rgba(148, 163, 184, 0.18);
+    border-radius: 8px;
+    color: #cbd5e1;
+    background: rgba(2, 6, 23, 0.38);
+    font-size: 0.9rem;
+}
+
+.filter-tabs a.active {
+    border-color: rgba(246, 178, 26, 0.72);
+    color: #111827;
+    background: linear-gradient(135deg, #facc15, #f59e0b);
+}
+
 .history-list li {
     display: grid;
     grid-template-columns: 1fr auto;

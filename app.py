@@ -221,6 +221,18 @@ def get_redirect_target():
     return redirect_target
 
 
+def get_redirect_url():
+    redirect_target = get_redirect_target()
+
+    if redirect_target == "history":
+        history_range = request.form.get("history_range", "all")
+
+        if history_range in ("14", "30"):
+            return url_for("history", range=history_range)
+
+    return url_for(redirect_target)
+
+
 def date_already_has_weight(connection, user_id, date_text, entry_id=None):
     if entry_id is None:
         existing_entry = connection.execute(
@@ -413,6 +425,11 @@ def index():
 @app.route("/history")
 @login_required
 def history():
+    active_range = request.args.get("range", "all")
+
+    if active_range not in ("all", "14", "30"):
+        active_range = "all"
+
     connection = get_db_connection()
     weights = connection.execute(
         get_sql("select_weight_entries_for_user"),
@@ -420,9 +437,19 @@ def history():
     ).fetchall()
     connection.close()
 
+    display_weights = build_display_weights(weights)
+
+    if active_range != "all":
+        cutoff_date = date.today() - timedelta(days=int(active_range) - 1)
+        display_weights = [
+            item for item in display_weights
+            if date.fromisoformat(item["date_value"]) >= cutoff_date
+        ]
+
     return render_template(
         "history.html",
-        weights=build_display_weights(weights),
+        active_range=active_range,
+        weights=display_weights,
         username=session["username"],
     )
 
@@ -470,7 +497,7 @@ def settings():
 @app.route("/weights/<int:entry_id>/edit", methods=["POST"])
 @login_required
 def edit_weight(entry_id):
-    redirect_target = get_redirect_target()
+    redirect_url = get_redirect_url()
     date_text = request.form["date"]
     weight_text = request.form["weight"]
     note_text = request.form.get("note", "")
@@ -478,19 +505,19 @@ def edit_weight(entry_id):
 
     if error:
         flash(error)
-        return redirect(url_for(redirect_target))
+        return redirect(redirect_url)
 
     note, error = validate_note(note_text)
 
     if error:
         flash(error)
-        return redirect(url_for(redirect_target))
+        return redirect(redirect_url)
 
     connection = get_db_connection()
     if date_already_has_weight(connection, session["user_id"], date_text, entry_id):
         connection.close()
         flash("Tälle päivälle on jo painomerkintä.")
-        return redirect(url_for(redirect_target))
+        return redirect(redirect_url)
 
     connection.execute(
         get_sql("update_weight_entry"),
@@ -500,13 +527,13 @@ def edit_weight(entry_id):
     connection.close()
 
     flash("Merkintä päivitetty.")
-    return redirect(url_for(redirect_target))
+    return redirect(redirect_url)
 
 
 @app.route("/weights/<int:entry_id>/delete", methods=["POST"])
 @login_required
 def delete_weight(entry_id):
-    redirect_target = get_redirect_target()
+    redirect_url = get_redirect_url()
     connection = get_db_connection()
     connection.execute(
         get_sql("delete_weight_entry"),
@@ -516,7 +543,7 @@ def delete_weight(entry_id):
     connection.close()
 
     flash("Merkintä poistettu.")
-    return redirect(url_for(redirect_target))
+    return redirect(redirect_url)
 
 
 @app.route("/register", methods=["GET", "POST"])
