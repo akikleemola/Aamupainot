@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Aamupainosovellus</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=dark-fitness-17">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=dark-fitness-22">
 </head>
 <body>
     <main class="container">
@@ -122,54 +122,25 @@
         </section>
 
         <div class="dashboard-grid">
-            <section class="panel chart-panel">
-                <div class="panel-heading">
-                    <div>
-                        <p class="eyebrow">Trend</p>
-                        <h2>Painon kehitys</h2>
-                    </div>
-                </div>
-
-                {% if chart_data|length >= 2 %}
-                    <div class="chart-wrap">
-                        <canvas id="weightChart" class="weight-chart" aria-label="Painon kehityskaavio"></canvas>
-                    </div>
-                {% else %}
-                    <div class="empty-state">
-                        <strong>Kaavio odottaa dataa</strong>
-                        <p>Lisää vähintään kaksi painomerkintää, niin kehitys näkyy tässä.</p>
-                    </div>
-                {% endif %}
-            </section>
-
-            <aside class="side-column">
-                <section class="panel">
+            <div class="main-column">
+                <section class="panel chart-panel">
                     <div class="panel-heading">
                         <div>
-                            <p class="eyebrow">Check-in</p>
-                            <h2>Lisää aamupaino</h2>
+                            <p class="eyebrow">Trend</p>
+                            <h2>Painon kehitys</h2>
                         </div>
                     </div>
 
-                    <form method="post" action="{{ url_for('index') }}">
-                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-
-                        <label for="date">Päivämäärä</label>
-                        <span class="date-field">
-                            <input class="date-display" type="text" placeholder="pp/kk/vvvv" readonly>
-                            <input class="native-date" type="date" id="date" name="date" required>
-                            <button class="date-picker-button" type="button" aria-label="Avaa kalenteri">▦</button>
-                        </span>
-                        <small class="field-hint">Valitse päivä kentän oikean reunan kalenterista.</small>
-
-                        <label for="weight">Paino (kg)</label>
-                        <input type="number" id="weight" name="weight" step="0.1" min="20" max="250" placeholder="Esim. 81.9" required>
-
-                        <label for="note">Muistiinpano</label>
-                        <input type="text" id="note" name="note" maxlength="200" placeholder="Esim. huonosti nukuttu">
-
-                        <button type="submit">Lisää paino</button>
-                    </form>
+                    {% if chart_data|length >= 2 %}
+                        <div class="chart-wrap">
+                            <canvas id="weightChart" class="weight-chart" aria-label="Painon kehityskaavio"></canvas>
+                        </div>
+                    {% else %}
+                        <div class="empty-state">
+                            <strong>Kaavio odottaa dataa</strong>
+                            <p>Lisää vähintään kaksi painomerkintää, niin kehitys näkyy tässä.</p>
+                        </div>
+                    {% endif %}
                 </section>
 
                 <section class="panel">
@@ -212,6 +183,37 @@
                             <li>Ei painomerkintöjä vielä.</li>
                         {% endfor %}
                     </ul>
+                </section>
+            </div>
+
+            <aside class="side-column">
+                <section class="panel">
+                    <div class="panel-heading">
+                        <div>
+                            <p class="eyebrow">Check-in</p>
+                            <h2>Lisää aamupaino</h2>
+                        </div>
+                    </div>
+
+                    <form method="post" action="{{ url_for('index') }}">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+                        <label for="date">Päivämäärä</label>
+                        <span class="date-field">
+                            <input class="date-display" type="text" placeholder="pp/kk/vvvv" readonly>
+                            <input class="native-date" type="date" id="date" name="date" required>
+                            <button class="date-picker-button" type="button" aria-label="Avaa kalenteri">▦</button>
+                        </span>
+                        <small class="field-hint">Valitse päivä kentän oikean reunan kalenterista.</small>
+
+                        <label for="weight">Paino (kg)</label>
+                        <input type="number" id="weight" name="weight" step="0.1" min="20" max="250" placeholder="Esim. 81.9" required>
+
+                        <label for="note">Muistiinpano</label>
+                        <input type="text" id="note" name="note" maxlength="200" placeholder="Esim. huonosti nukuttu">
+
+                        <button type="submit">Lisää paino</button>
+                    </form>
                 </section>
             </aside>
         </div>
