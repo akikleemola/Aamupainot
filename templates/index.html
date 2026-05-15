@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Aamupainosovellus</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=dark-fitness-26">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=dark-fitness-28">
 </head>
 <body>
     <main class="container">
@@ -218,6 +218,7 @@
 
     <template id="chart-data">{{ chart_data|tojson }}</template>
     <template id="target-weight">{{ target_weight|tojson }}</template>
-    <script src="{{ url_for('static', filename='chart.js') }}?v=7" defer></script>
+    <template id="chart-settings">{{ {"lineType": chart_line_type, "showTargetLine": show_target_line}|tojson }}</template>
+    <script src="{{ url_for('static', filename='chart.js') }}?v=8" defer></script>
 </body>
 </html>

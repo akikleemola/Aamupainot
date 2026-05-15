@@ -60,6 +60,14 @@ def init_db():
         connection.execute(get_sql("add_target_weight_to_users"))
     except sqlite3.OperationalError:
         pass
+    try:
+        connection.execute(get_sql("add_chart_line_type_to_users"))
+    except sqlite3.OperationalError:
+        pass
+    try:
+        connection.execute(get_sql("add_show_target_line_to_users"))
+    except sqlite3.OperationalError:
+        pass
     connection.execute(get_sql("create_weight_entries"))
     try:
         connection.execute(get_sql("add_user_id_to_weight_entries"))
@@ -167,6 +175,13 @@ def validate_target_weight(weight_text):
         return None, f"Tavoitepainon pitää olla välillä {MIN_WEIGHT}-{MAX_WEIGHT} kg."
 
     return weight, None
+
+
+def validate_chart_settings(line_type, show_target_line):
+    if line_type not in ("exact", "smoothed"):
+        return None, None, "Valitse painoviivan tyyppi."
+
+    return line_type, 1 if show_target_line == "1" else 0, None
 
 
 def get_current_user():
@@ -390,6 +405,8 @@ def index():
     recent_average = None
     recent_average_count = min(len(chart_data), 7)
     target_weight = user_settings["target_weight"]
+    chart_line_type = user_settings["chart_line_type"]
+    show_target_line = user_settings["show_target_line"] == 1
     target_difference = None
     target_status = None
     total_change = None
@@ -425,6 +442,8 @@ def index():
         previous_change=previous_change,
         recent_average=recent_average,
         recent_average_count=recent_average_count,
+        chart_line_type=chart_line_type,
+        show_target_line=show_target_line,
         target_difference=target_difference,
         target_status=target_status,
         target_weight=target_weight,
@@ -488,6 +507,26 @@ def settings():
             connection.close()
 
             flash("Tavoitepaino tallennettu.", "success")
+            return redirect(url_for("settings"))
+
+        if action == "chart_settings":
+            line_type = request.form.get("chart_line_type", "exact")
+            show_target_line = request.form.get("show_target_line", "0")
+            line_type, show_target_line, error = validate_chart_settings(line_type, show_target_line)
+
+            if error:
+                flash(error, "error")
+                return redirect(url_for("settings"))
+
+            connection = get_db_connection()
+            connection.execute(
+                get_sql("update_chart_settings"),
+                (line_type, show_target_line, session["user_id"]),
+            )
+            connection.commit()
+            connection.close()
+
+            flash("Kaavion asetukset tallennettu.", "success")
             return redirect(url_for("settings"))
 
         if action == "username":
@@ -567,6 +606,8 @@ def settings():
 
     return render_template(
         "settings.html",
+        chart_line_type=user["chart_line_type"],
+        show_target_line=user["show_target_line"],
         target_weight=user["target_weight"],
         username=user["username"],
     )

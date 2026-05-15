@@ -1,8 +1,13 @@
 const chartDataElement = document.getElementById("chart-data");
 const targetWeightElement = document.getElementById("target-weight");
+const chartSettingsElement = document.getElementById("chart-settings");
 const canvas = document.getElementById("weightChart");
 let chartData = [];
 let targetWeight = null;
+let chartSettings = {
+    lineType: "exact",
+    showTargetLine: true,
+};
 
 function formatDisplayDate(dateText) {
     if (!dateText) {
@@ -99,10 +104,47 @@ if (targetWeightElement) {
     }
 }
 
+if (chartSettingsElement) {
+    const chartSettingsText = chartSettingsElement.content
+        ? chartSettingsElement.content.textContent
+        : chartSettingsElement.textContent;
+
+    try {
+        const parsedChartSettings = JSON.parse(chartSettingsText.trim());
+
+        if (parsedChartSettings.lineType === "exact" || parsedChartSettings.lineType === "smoothed") {
+            chartSettings.lineType = parsedChartSettings.lineType;
+        }
+
+        chartSettings.showTargetLine = parsedChartSettings.showTargetLine !== false;
+    } catch (error) {
+        chartSettings = {
+            lineType: "exact",
+            showTargetLine: true,
+        };
+    }
+}
+
+function buildSmoothedData(data) {
+    return data.map((item, index) => {
+        const start = Math.max(0, index - 6);
+        const recentItems = data.slice(start, index + 1);
+        const average = recentItems.reduce((sum, recentItem) => sum + recentItem.weight, 0) / recentItems.length;
+
+        return {
+            date: item.date,
+            weight: average,
+        };
+    });
+}
+
 if (canvas && chartData.length >= 2) {
     const context = canvas.getContext("2d");
 
     function drawChart() {
+        const lineData = chartSettings.lineType === "smoothed"
+            ? buildSmoothedData(chartData)
+            : chartData;
         const width = canvas.clientWidth;
         const height = canvas.clientHeight;
         const pixelRatio = window.devicePixelRatio || 1;
@@ -112,9 +154,9 @@ if (canvas && chartData.length >= 2) {
             bottom: 48,
             left: 76,
         };
-        const weights = chartData.map((item) => item.weight);
+        const weights = lineData.map((item) => item.weight);
 
-        if (targetWeight !== null) {
+        if (chartSettings.showTargetLine && targetWeight !== null) {
             weights.push(targetWeight);
         }
 
@@ -169,7 +211,7 @@ if (canvas && chartData.length >= 2) {
         context.lineTo(width - padding.right, height - padding.bottom);
         context.stroke();
 
-        if (targetWeight !== null) {
+        if (chartSettings.showTargetLine && targetWeight !== null) {
             const targetY = getY(targetWeight);
 
             context.save();
@@ -192,13 +234,13 @@ if (canvas && chartData.length >= 2) {
 
         context.shadowColor = "rgba(245, 158, 11, 0.35)";
         context.shadowBlur = 14;
-        context.strokeStyle = "#f6b21a";
+        context.strokeStyle = chartSettings.lineType === "smoothed" ? "#38bdf8" : "#f6b21a";
         context.lineWidth = 3;
         context.lineJoin = "round";
         context.lineCap = "round";
         context.beginPath();
 
-        chartData.forEach((item, index) => {
+        lineData.forEach((item, index) => {
             const x = getX(index);
             const y = getY(item.weight);
 
@@ -212,12 +254,12 @@ if (canvas && chartData.length >= 2) {
         context.stroke();
         context.shadowBlur = 0;
 
-        chartData.forEach((item, index) => {
+        lineData.forEach((item, index) => {
             const x = getX(index);
             const y = getY(item.weight);
 
             context.fillStyle = "#0b1224";
-            context.strokeStyle = "#f6b21a";
+            context.strokeStyle = chartSettings.lineType === "smoothed" ? "#38bdf8" : "#f6b21a";
             context.lineWidth = 3;
             context.beginPath();
             context.arc(x, y, 6, 0, Math.PI * 2);

@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Asetukset</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=dark-fitness-27">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=dark-fitness-28">
 </head>
 <body>
     <main class="container">
@@ -44,6 +44,35 @@
                 <small class="field-hint">Voit jättää kentän tyhjäksi, jos et halua asettaa tavoitetta.</small>
 
                 <button type="submit">Tallenna tavoitepaino</button>
+            </form>
+        </section>
+
+        <section class="panel settings-panel">
+            <div class="panel-heading">
+                <div>
+                    <p class="eyebrow">Kaavio</p>
+                    <h2>Kaavion asetukset</h2>
+                    <p class="section-note">Valitse näetkö tarkan painoviivan vai tasoitetun trendin.</p>
+                </div>
+            </div>
+
+            <form method="post" action="{{ url_for('settings') }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <input type="hidden" name="action" value="chart_settings">
+
+                <label for="chart_line_type">Painoviiva</label>
+                <select id="chart_line_type" name="chart_line_type">
+                    <option value="exact" {% if chart_line_type == "exact" %}selected{% endif %}>Tarkka</option>
+                    <option value="smoothed" {% if chart_line_type == "smoothed" %}selected{% endif %}>Tasoitettu</option>
+                </select>
+                <small class="field-hint">Tasoitettu viiva näyttää viimeisten enintään 7 merkinnän keskiarvon.</small>
+
+                <label class="checkbox-field" for="show_target_line">
+                    <input type="checkbox" id="show_target_line" name="show_target_line" value="1" {% if show_target_line %}checked{% endif %}>
+                    Näytä tavoiteviiva kaaviossa
+                </label>
+
+                <button type="submit">Tallenna kaavion asetukset</button>
             </form>
         </section>
 
