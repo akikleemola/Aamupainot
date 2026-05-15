@@ -148,6 +148,58 @@ def validate_note(note_text):
     return note, None
 
 
+def build_display_weights(weights):
+    oldest_first = list(reversed(weights))
+    previous_weights = {}
+
+    for index, item in enumerate(oldest_first):
+        if index == 0:
+            previous_weights[item["id"]] = None
+        else:
+            previous_weights[item["id"]] = oldest_first[index - 1]["weight"]
+
+    display_weights = []
+
+    for item in weights:
+        previous_weight = previous_weights[item["id"]]
+        change = None
+
+        if previous_weight is not None:
+            change = round(item["weight"] - previous_weight, 1)
+
+        if change is None:
+            change_status = "neutral"
+        elif change > 0:
+            change_status = "up"
+        elif change < 0:
+            change_status = "down"
+        else:
+            change_status = "same"
+
+        display_weights.append(
+            {
+                "id": item["id"],
+                "date": format_date(item["date"]),
+                "date_value": item["date"],
+                "weight": item["weight"],
+                "note": item["note"],
+                "change": change,
+                "change_status": change_status,
+            }
+        )
+
+    return display_weights
+
+
+def get_redirect_target():
+    redirect_target = request.form.get("redirect_target", "index")
+
+    if redirect_target not in ("index", "history"):
+        return "index"
+
+    return redirect_target
+
+
 def date_already_has_weight(connection, user_id, date_text, entry_id=None):
     if entry_id is None:
         existing_entry = connection.execute(
@@ -286,16 +338,8 @@ def index():
     recent_average = None
     recent_average_count = min(len(chart_data), 7)
     total_change = None
-    display_weights = [
-        {
-            "id": item["id"],
-            "date": format_date(item["date"]),
-            "date_value": item["date"],
-            "weight": item["weight"],
-            "note": item["note"],
-        }
-        for item in weights
-    ]
+    display_weights = build_display_weights(weights)
+    latest_display_weights = display_weights[:5]
 
     if latest_weight is not None and first_weight is not None:
         total_change = round(latest_weight - first_weight, 1)
@@ -309,7 +353,7 @@ def index():
 
     return render_template(
         "index.html",
-        weights=display_weights,
+        weights=latest_display_weights,
         chart_data=chart_data,
         latest_date=latest_date,
         latest_weight=latest_weight,
@@ -322,9 +366,27 @@ def index():
     )
 
 
+@app.route("/history")
+@login_required
+def history():
+    connection = get_db_connection()
+    weights = connection.execute(
+        get_sql("select_weight_entries_for_user"),
+        (session["user_id"],),
+    ).fetchall()
+    connection.close()
+
+    return render_template(
+        "history.html",
+        weights=build_display_weights(weights),
+        username=session["username"],
+    )
+
+
 @app.route("/weights/<int:entry_id>/edit", methods=["POST"])
 @login_required
 def edit_weight(entry_id):
+    redirect_target = get_redirect_target()
     date_text = request.form["date"]
     weight_text = request.form["weight"]
     note_text = request.form.get("note", "")
@@ -332,19 +394,19 @@ def edit_weight(entry_id):
 
     if error:
         flash(error)
-        return redirect(url_for("index"))
+        return redirect(url_for(redirect_target))
 
     note, error = validate_note(note_text)
 
     if error:
         flash(error)
-        return redirect(url_for("index"))
+        return redirect(url_for(redirect_target))
 
     connection = get_db_connection()
     if date_already_has_weight(connection, session["user_id"], date_text, entry_id):
         connection.close()
         flash("Tälle päivälle on jo painomerkintä.")
-        return redirect(url_for("index"))
+        return redirect(url_for(redirect_target))
 
     connection.execute(
         get_sql("update_weight_entry"),
@@ -354,12 +416,13 @@ def edit_weight(entry_id):
     connection.close()
 
     flash("Merkintä päivitetty.")
-    return redirect(url_for("index"))
+    return redirect(url_for(redirect_target))
 
 
 @app.route("/weights/<int:entry_id>/delete", methods=["POST"])
 @login_required
 def delete_weight(entry_id):
+    redirect_target = get_redirect_target()
     connection = get_db_connection()
     connection.execute(
         get_sql("delete_weight_entry"),
@@ -369,7 +432,7 @@ def delete_weight(entry_id):
     connection.close()
 
     flash("Merkintä poistettu.")
-    return redirect(url_for("index"))
+    return redirect(url_for(redirect_target))
 
 
 @app.route("/register", methods=["GET", "POST"])

@@ -174,8 +174,14 @@ a {
 .panel-heading {
     display: flex;
     justify-content: space-between;
+    align-items: center;
     gap: 16px;
     margin-bottom: 18px;
+}
+
+.panel-link {
+    flex: 0 0 auto;
+    font-size: 0.9rem;
 }
 
 form {
@@ -434,6 +440,68 @@ button:hover {
     background: rgba(153, 27, 27, 0.92);
 }
 
+.history-panel {
+    max-width: 920px;
+    margin: 0 auto;
+}
+
+.history-list {
+    display: grid;
+    gap: 12px;
+    padding: 0;
+    margin: 0;
+    list-style: none;
+}
+
+.history-list li {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 12px;
+    align-items: start;
+    padding: 14px;
+    border: 1px solid rgba(148, 163, 184, 0.12);
+    border-radius: 14px;
+    background: rgba(2, 6, 23, 0.34);
+}
+
+.history-summary {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: minmax(130px, 1fr) minmax(90px, 0.7fr) minmax(170px, 1fr);
+    gap: 8px;
+    align-items: center;
+    color: #9aa6b8;
+}
+
+.history-summary strong {
+    color: #f8fafc;
+}
+
+.change-value {
+    font-weight: bold;
+}
+
+.change-up {
+    color: #fca5a5;
+}
+
+.change-down {
+    color: #86efac;
+}
+
+.change-same,
+.change-neutral {
+    color: #cbd5e1;
+}
+
+.history-entry-form {
+    width: 100%;
+}
+
+.history-empty {
+    color: #9aa6b8;
+}
+
 .sr-only {
     position: absolute;
     width: 1px;
@@ -494,7 +562,9 @@ button:hover {
     }
 
     .weight-list li,
-    .entry-form {
+    .entry-form,
+    .history-list li,
+    .history-summary {
         grid-template-columns: 1fr;
     }
 

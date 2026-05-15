@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Aamupainosovellus</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=dark-fitness-12">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=dark-fitness-13">
 </head>
 <body>
     <main class="container">
@@ -153,8 +153,9 @@
                     <div class="panel-heading">
                         <div>
                             <p class="eyebrow">History</p>
-                            <h2>Aiemmat painot</h2>
+                            <h2><a href="{{ url_for('history') }}">Aiemmat painot</a></h2>
                         </div>
+                        <a class="panel-link" href="{{ url_for('history') }}">Näytä kaikki</a>
                     </div>
 
                     <ul class="weight-list">
