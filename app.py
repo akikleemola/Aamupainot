@@ -512,6 +512,48 @@ def settings():
             flash("Käyttäjänimi päivitetty.")
             return redirect(url_for("settings"))
 
+        if action == "password":
+            current_password = request.form.get("current_password", "")
+            new_password = request.form.get("new_password", "")
+            new_password_confirm = request.form.get("new_password_confirm", "")
+
+            connection = get_db_connection()
+            user = connection.execute(
+                get_sql("select_user_by_id"),
+                (session["user_id"],),
+            ).fetchone()
+
+            if not user:
+                connection.close()
+                session.clear()
+                return redirect(url_for("login"))
+
+            if not check_password_hash(user["password_hash"], current_password):
+                connection.close()
+                flash("Nykyinen salasana on väärin.")
+                return redirect(url_for("settings"))
+
+            if len(new_password) < MIN_PASSWORD_LENGTH:
+                connection.close()
+                flash(f"Uuden salasanan pitää olla vähintään {MIN_PASSWORD_LENGTH} merkkiä pitkä.")
+                return redirect(url_for("settings"))
+
+            if new_password != new_password_confirm:
+                connection.close()
+                flash("Uudet salasanat eivät täsmää.")
+                return redirect(url_for("settings"))
+
+            password_hash = generate_password_hash(new_password)
+            connection.execute(
+                get_sql("update_password"),
+                (password_hash, session["user_id"]),
+            )
+            connection.commit()
+            connection.close()
+
+            flash("Salasana päivitetty.")
+            return redirect(url_for("settings"))
+
         flash("Asetuksia ei voitu tallentaa.")
         return redirect(url_for("settings"))
 

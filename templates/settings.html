@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Asetukset</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=dark-fitness-23">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=dark-fitness-24">
 </head>
 <body>
     <main class="container">
@@ -63,6 +63,31 @@
                 <small class="field-hint">Käyttäjänimessä saa olla 3-30 kirjainta, numeroa tai alaviivaa.</small>
 
                 <button type="submit">Tallenna käyttäjänimi</button>
+            </form>
+        </section>
+
+        <section class="panel settings-panel">
+            <div class="panel-heading">
+                <div>
+                    <p class="eyebrow">Security</p>
+                    <h2>Salasana</h2>
+                </div>
+            </div>
+
+            <form method="post" action="{{ url_for('settings') }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <input type="hidden" name="action" value="password">
+
+                <label for="current_password">Nykyinen salasana</label>
+                <input type="password" id="current_password" name="current_password" required>
+
+                <label for="new_password">Uusi salasana</label>
+                <input type="password" id="new_password" name="new_password" minlength="4" required>
+
+                <label for="new_password_confirm">Uusi salasana uudelleen</label>
+                <input type="password" id="new_password_confirm" name="new_password_confirm" minlength="4" required>
+
+                <button type="submit">Vaihda salasana</button>
             </form>
         </section>
     </main>

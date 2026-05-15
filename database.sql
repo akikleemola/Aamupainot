@@ -41,6 +41,11 @@ SELECT id, username, password_hash, target_weight
 FROM users
 WHERE username = ?;
 
+-- name: select_user_by_id
+SELECT id, username, password_hash, target_weight
+FROM users
+WHERE id = ?;
+
 -- name: select_user_settings
 SELECT username, target_weight
 FROM users
@@ -54,6 +59,11 @@ WHERE id = ?;
 -- name: update_username
 UPDATE users
 SET username = ?
+WHERE id = ?;
+
+-- name: update_password
+UPDATE users
+SET password_hash = ?
 WHERE id = ?;
 
 -- name: insert_weight_entry
