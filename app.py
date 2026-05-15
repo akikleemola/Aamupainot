@@ -339,19 +339,19 @@ def index():
         date_text, weight, error = validate_weight_entry(date_text, weight_text)
 
         if error:
-            flash(error)
+            flash(error, "error")
             return redirect(url_for("index"))
 
         note, error = validate_note(note_text)
 
         if error:
-            flash(error)
+            flash(error, "error")
             return redirect(url_for("index"))
 
         connection = get_db_connection()
         if date_already_has_weight(connection, session["user_id"], date_text):
             connection.close()
-            flash("Tälle päivälle on jo painomerkintä.")
+            flash("Tälle päivälle on jo painomerkintä.", "error")
             return redirect(url_for("index"))
 
         connection.execute(
@@ -476,7 +476,7 @@ def settings():
             target_weight, error = validate_target_weight(target_weight_text)
 
             if error:
-                flash(error)
+                flash(error, "error")
                 return redirect(url_for("settings"))
 
             connection = get_db_connection()
@@ -487,18 +487,18 @@ def settings():
             connection.commit()
             connection.close()
 
-            flash("Tavoitepaino tallennettu.")
+            flash("Tavoitepaino tallennettu.", "success")
             return redirect(url_for("settings"))
 
         if action == "username":
             username = request.form.get("username", "").strip()
 
             if not USERNAME_PATTERN.fullmatch(username):
-                flash("Käyttäjänimessä saa olla 3-30 kirjainta, numeroa tai alaviivaa.")
+                flash("Käyttäjänimessä saa olla 3-30 kirjainta, numeroa tai alaviivaa.", "error")
                 return redirect(url_for("settings"))
 
             if username == session["username"]:
-                flash("Käyttäjänimi on jo käytössäsi.")
+                flash("Käyttäjänimi on jo käytössäsi.", "info")
                 return redirect(url_for("settings"))
 
             connection = get_db_connection()
@@ -509,7 +509,7 @@ def settings():
 
             if existing_user:
                 connection.close()
-                flash("Käyttäjänimi on jo käytössä.")
+                flash("Käyttäjänimi on jo käytössä.", "error")
                 return redirect(url_for("settings"))
 
             connection.execute(
@@ -520,7 +520,7 @@ def settings():
             connection.close()
 
             session["username"] = username
-            flash("Käyttäjänimi päivitetty.")
+            flash("Käyttäjänimi päivitetty.", "success")
             return redirect(url_for("settings"))
 
         if action == "password":
@@ -534,15 +534,15 @@ def settings():
                 return redirect(url_for("login"))
 
             if not check_password_hash(user["password_hash"], current_password):
-                flash("Nykyinen salasana on väärin.")
+                flash("Nykyinen salasana on väärin.", "error")
                 return redirect(url_for("settings"))
 
             if len(new_password) < MIN_PASSWORD_LENGTH:
-                flash(f"Uuden salasanan pitää olla vähintään {MIN_PASSWORD_LENGTH} merkkiä pitkä.")
+                flash(f"Uuden salasanan pitää olla vähintään {MIN_PASSWORD_LENGTH} merkkiä pitkä.", "error")
                 return redirect(url_for("settings"))
 
             if new_password != new_password_confirm:
-                flash("Uudet salasanat eivät täsmää.")
+                flash("Uudet salasanat eivät täsmää.", "error")
                 return redirect(url_for("settings"))
 
             password_hash = generate_password_hash(new_password)
@@ -554,10 +554,10 @@ def settings():
             connection.commit()
             connection.close()
 
-            flash("Salasana päivitetty.")
+            flash("Salasana päivitetty.", "success")
             return redirect(url_for("settings"))
 
-        flash("Asetuksia ei voitu tallentaa.")
+        flash("Asetuksia ei voitu tallentaa.", "error")
         return redirect(url_for("settings"))
 
     user = get_current_user()
@@ -582,19 +582,19 @@ def edit_weight(entry_id):
     date_text, weight, error = validate_weight_entry(date_text, weight_text)
 
     if error:
-        flash(error)
+        flash(error, "error")
         return redirect(redirect_url)
 
     note, error = validate_note(note_text)
 
     if error:
-        flash(error)
+        flash(error, "error")
         return redirect(redirect_url)
 
     connection = get_db_connection()
     if date_already_has_weight(connection, session["user_id"], date_text, entry_id):
         connection.close()
-        flash("Tälle päivälle on jo painomerkintä.")
+        flash("Tälle päivälle on jo painomerkintä.", "error")
         return redirect(redirect_url)
 
     connection.execute(
@@ -604,7 +604,7 @@ def edit_weight(entry_id):
     connection.commit()
     connection.close()
 
-    flash("Merkintä päivitetty.")
+    flash("Merkintä päivitetty.", "success")
     return redirect(redirect_url)
 
 
@@ -620,7 +620,7 @@ def delete_weight(entry_id):
     connection.commit()
     connection.close()
 
-    flash("Merkintä poistettu.")
+    flash("Merkintä poistettu.", "success")
     return redirect(redirect_url)
 
 
@@ -632,15 +632,15 @@ def register():
         password_confirm = request.form["password_confirm"]
 
         if not USERNAME_PATTERN.fullmatch(username):
-            flash("Käyttäjänimessä saa olla 3-30 kirjainta, numeroa tai alaviivaa.")
+            flash("Käyttäjänimessä saa olla 3-30 kirjainta, numeroa tai alaviivaa.", "error")
             return redirect(url_for("register"))
 
         if len(password) < MIN_PASSWORD_LENGTH:
-            flash(f"Salasanan pitää olla vähintään {MIN_PASSWORD_LENGTH} merkkiä pitkä.")
+            flash(f"Salasanan pitää olla vähintään {MIN_PASSWORD_LENGTH} merkkiä pitkä.", "error")
             return redirect(url_for("register"))
 
         if password != password_confirm:
-            flash("Salasanat eivät täsmää.")
+            flash("Salasanat eivät täsmää.", "error")
             return redirect(url_for("register"))
 
         password_hash = generate_password_hash(password)
@@ -653,14 +653,14 @@ def register():
 
         if existing_user:
             connection.close()
-            flash("Käyttäjänimi on jo käytössä.")
+            flash("Käyttäjänimi on jo käytössä.", "error")
             return redirect(url_for("register"))
 
         connection.execute(get_sql("insert_user"), (username, password_hash))
         connection.commit()
         connection.close()
 
-        flash("Tunnus luotu. Voit nyt kirjautua sisään.")
+        flash("Tunnus luotu. Voit nyt kirjautua sisään.", "success")
         return redirect(url_for("login"))
 
     return render_template("register.html")
@@ -673,7 +673,7 @@ def login():
         password = request.form["password"]
 
         if is_login_locked(username):
-            flash("Liian monta epäonnistunutta kirjautumisyritystä. Yritä hetken päästä uudelleen.")
+            flash("Liian monta epäonnistunutta kirjautumisyritystä. Yritä hetken päästä uudelleen.", "error")
             return redirect(url_for("login"))
 
         connection = get_db_connection()
@@ -690,7 +690,7 @@ def login():
             return redirect(url_for("index"))
 
         record_failed_login(username)
-        flash("Käyttäjänimi tai salasana on väärin.")
+        flash("Käyttäjänimi tai salasana on väärin.", "error")
 
     return render_template("login.html")
 

@@ -347,6 +347,21 @@ button:hover {
     background: rgba(120, 53, 15, 0.42);
 }
 
+.message.success {
+    border-color: rgba(134, 239, 172, 0.44);
+    background: rgba(20, 83, 45, 0.48);
+}
+
+.message.error {
+    border-color: rgba(252, 165, 165, 0.44);
+    background: rgba(127, 29, 29, 0.5);
+}
+
+.message.info {
+    border-color: rgba(147, 197, 253, 0.44);
+    background: rgba(30, 64, 175, 0.42);
+}
+
 .auth-link {
     margin: 18px 0 0;
     color: #9aa6b8;

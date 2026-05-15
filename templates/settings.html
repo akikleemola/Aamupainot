@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Asetukset</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=dark-fitness-24">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=dark-fitness-26">
 </head>
 <body>
     <main class="container">
@@ -22,8 +22,8 @@
             </nav>
         </header>
 
-        {% for message in get_flashed_messages() %}
-            <p class="message">{{ message }}</p>
+        {% for category, message in get_flashed_messages(with_categories=True) %}
+            <p class="message {{ category }}">{{ message }}</p>
         {% endfor %}
 
         <section class="panel settings-panel">
