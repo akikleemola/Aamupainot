@@ -44,11 +44,13 @@ document.querySelectorAll(".entry-form").forEach((form) => {
     form.addEventListener("submit", (event) => {
         const dateValue = form.querySelector('input[name="date"]').value;
         const weightValue = form.querySelector('input[name="weight"]').value;
+        const noteValue = form.querySelector('input[name="note"]').value.trim();
         const originalDate = form.dataset.originalDate;
         const originalWeight = Number(form.dataset.originalWeight).toFixed(1);
+        const originalNote = form.dataset.originalNote.trim();
         const normalizedWeight = Number(weightValue).toFixed(1);
 
-        if (dateValue === originalDate && normalizedWeight === originalWeight) {
+        if (dateValue === originalDate && normalizedWeight === originalWeight && noteValue === originalNote) {
             event.preventDefault();
             return;
         }

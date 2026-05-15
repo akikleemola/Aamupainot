@@ -11,12 +11,17 @@ CREATE TABLE IF NOT EXISTS weight_entries (
     user_id INTEGER,
     date TEXT NOT NULL,
     weight REAL NOT NULL,
+    note TEXT NOT NULL DEFAULT '',
     FOREIGN KEY (user_id) REFERENCES users (id)
 );
 
 -- name: add_user_id_to_weight_entries
 ALTER TABLE weight_entries
 ADD COLUMN user_id INTEGER REFERENCES users (id);
+
+-- name: add_note_to_weight_entries
+ALTER TABLE weight_entries
+ADD COLUMN note TEXT NOT NULL DEFAULT '';
 
 -- name: create_weight_entries_user_date_index
 CREATE INDEX IF NOT EXISTS index_weight_entries_user_date
@@ -32,11 +37,11 @@ FROM users
 WHERE username = ?;
 
 -- name: insert_weight_entry
-INSERT INTO weight_entries (user_id, date, weight)
-VALUES (?, ?, ?);
+INSERT INTO weight_entries (user_id, date, weight, note)
+VALUES (?, ?, ?, ?);
 
 -- name: select_weight_entries_for_user
-SELECT id, date, weight
+SELECT id, date, weight, note
 FROM weight_entries
 WHERE user_id = ?
 ORDER BY date DESC;
@@ -53,7 +58,7 @@ WHERE user_id = ? AND date = ? AND id != ?;
 
 -- name: update_weight_entry
 UPDATE weight_entries
-SET date = ?, weight = ?
+SET date = ?, weight = ?, note = ?
 WHERE id = ? AND user_id = ?;
 
 -- name: delete_weight_entry

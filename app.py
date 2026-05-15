@@ -32,6 +32,7 @@ MAX_LOGIN_ATTEMPTS = 5
 LOGIN_LOCK_TIME = timedelta(minutes=5)
 MIN_WEIGHT = 20
 MAX_WEIGHT = 250
+MAX_NOTE_LENGTH = 200
 login_attempts = {}
 
 
@@ -58,6 +59,10 @@ def init_db():
     connection.execute(get_sql("create_weight_entries"))
     try:
         connection.execute(get_sql("add_user_id_to_weight_entries"))
+    except sqlite3.OperationalError:
+        pass
+    try:
+        connection.execute(get_sql("add_note_to_weight_entries"))
     except sqlite3.OperationalError:
         pass
     connection.execute(get_sql("create_weight_entries_user_date_index"))
@@ -132,6 +137,15 @@ def validate_weight_entry(date_text, weight_text):
         return None, None, f"Painon pitää olla välillä {MIN_WEIGHT}-{MAX_WEIGHT} kg."
 
     return date_text, weight, None
+
+
+def validate_note(note_text):
+    note = note_text.strip()
+
+    if len(note) > MAX_NOTE_LENGTH:
+        return None, f"Muistiinpano saa olla enintään {MAX_NOTE_LENGTH} merkkiä pitkä."
+
+    return note, None
 
 
 def date_already_has_weight(connection, user_id, date_text, entry_id=None):
@@ -225,7 +239,14 @@ def index():
     if request.method == "POST":
         date_text = request.form["date"]
         weight_text = request.form["weight"]
+        note_text = request.form.get("note", "")
         date_text, weight, error = validate_weight_entry(date_text, weight_text)
+
+        if error:
+            flash(error)
+            return redirect(url_for("index"))
+
+        note, error = validate_note(note_text)
 
         if error:
             flash(error)
@@ -239,7 +260,7 @@ def index():
 
         connection.execute(
             get_sql("insert_weight_entry"),
-            (session["user_id"], date_text, weight),
+            (session["user_id"], date_text, weight, note),
         )
         connection.commit()
         connection.close()
@@ -267,6 +288,7 @@ def index():
             "date": format_date(item["date"]),
             "date_value": item["date"],
             "weight": item["weight"],
+            "note": item["note"],
         }
         for item in weights
     ]
@@ -291,7 +313,14 @@ def index():
 def edit_weight(entry_id):
     date_text = request.form["date"]
     weight_text = request.form["weight"]
+    note_text = request.form.get("note", "")
     date_text, weight, error = validate_weight_entry(date_text, weight_text)
+
+    if error:
+        flash(error)
+        return redirect(url_for("index"))
+
+    note, error = validate_note(note_text)
 
     if error:
         flash(error)
@@ -305,7 +334,7 @@ def edit_weight(entry_id):
 
     connection.execute(
         get_sql("update_weight_entry"),
-        (date_text, weight, entry_id, session["user_id"]),
+        (date_text, weight, note, entry_id, session["user_id"]),
     )
     connection.commit()
     connection.close()
