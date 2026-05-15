@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Aamupainosovellus</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=dark-fitness-16">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=dark-fitness-17">
 </head>
 <body>
     <main class="container">
@@ -12,7 +12,7 @@
             <div>
                 <p class="eyebrow">Aamupainosovellus</p>
                 <h1>Weight Tracker</h1>
-                <p class="intro">Seuraa aamupainon kehitystä, viimeisintä muutosta ja omaa trendiäsi yhdestä näkymästä.</p>
+                <p class="intro">Seuraa aamupainon kehitystä ja viimeisintä muutosta yhdestä näkymästä.</p>
             </div>
             <nav class="topbar">
                 <span>{{ username }}</span>
@@ -92,7 +92,7 @@
                 <small>Ensimmäisestä merkinnästä</small>
             </article>
 
-            <article class="stat-card">
+            <article class="stat-card target-card target-{{ target_status or 'missing' }}">
                 <span>Tavoitteeseen</span>
                 <strong>
                     {% if target_status == "reached" %}
@@ -218,6 +218,7 @@
     </main>
 
     <template id="chart-data">{{ chart_data|tojson }}</template>
-    <script src="{{ url_for('static', filename='chart.js') }}?v=6" defer></script>
+    <template id="target-weight">{{ target_weight|tojson }}</template>
+    <script src="{{ url_for('static', filename='chart.js') }}?v=7" defer></script>
 </body>
 </html>

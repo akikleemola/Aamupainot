@@ -147,6 +147,42 @@ a {
     font-size: 0.85rem;
 }
 
+.target-card {
+    border-color: rgba(148, 163, 184, 0.24);
+}
+
+.target-card::before {
+    background:
+        radial-gradient(circle at 80% 0%, rgba(148, 163, 184, 0.16), transparent 34%),
+        linear-gradient(135deg, rgba(148, 163, 184, 0.08), transparent 42%);
+}
+
+.target-above {
+    border-color: rgba(252, 165, 165, 0.34);
+}
+
+.target-above::before {
+    background:
+        radial-gradient(circle at 80% 0%, rgba(248, 113, 113, 0.18), transparent 34%),
+        linear-gradient(135deg, rgba(248, 113, 113, 0.08), transparent 42%);
+}
+
+.target-below,
+.target-reached {
+    border-color: rgba(134, 239, 172, 0.34);
+}
+
+.target-below::before,
+.target-reached::before {
+    background:
+        radial-gradient(circle at 80% 0%, rgba(34, 197, 94, 0.18), transparent 34%),
+        linear-gradient(135deg, rgba(34, 197, 94, 0.08), transparent 42%);
+}
+
+.target-reached strong {
+    color: #86efac;
+}
+
 .dashboard-grid {
     display: grid;
     grid-template-columns: minmax(0, 1.6fr) minmax(300px, 0.8fr);

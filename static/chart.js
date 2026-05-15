@@ -1,6 +1,8 @@
 const chartDataElement = document.getElementById("chart-data");
+const targetWeightElement = document.getElementById("target-weight");
 const canvas = document.getElementById("weightChart");
 let chartData = [];
+let targetWeight = null;
 
 function formatDisplayDate(dateText) {
     if (!dateText) {
@@ -81,6 +83,22 @@ if (chartDataElement) {
     }
 }
 
+if (targetWeightElement) {
+    const targetWeightText = targetWeightElement.content
+        ? targetWeightElement.content.textContent
+        : targetWeightElement.textContent;
+
+    try {
+        const parsedTargetWeight = JSON.parse(targetWeightText.trim());
+
+        if (typeof parsedTargetWeight === "number") {
+            targetWeight = parsedTargetWeight;
+        }
+    } catch (error) {
+        targetWeight = null;
+    }
+}
+
 if (canvas && chartData.length >= 2) {
     const context = canvas.getContext("2d");
 
@@ -95,6 +113,11 @@ if (canvas && chartData.length >= 2) {
             left: 76,
         };
         const weights = chartData.map((item) => item.weight);
+
+        if (targetWeight !== null) {
+            weights.push(targetWeight);
+        }
+
         const minWeight = Math.min(...weights);
         const maxWeight = Math.max(...weights);
         const chartMin = Math.floor(minWeight) - 1;
@@ -145,6 +168,27 @@ if (canvas && chartData.length >= 2) {
         context.lineTo(padding.left, height - padding.bottom);
         context.lineTo(width - padding.right, height - padding.bottom);
         context.stroke();
+
+        if (targetWeight !== null) {
+            const targetY = getY(targetWeight);
+
+            context.save();
+            context.strokeStyle = "rgba(34, 197, 94, 0.72)";
+            context.lineWidth = 2;
+            context.setLineDash([8, 8]);
+            context.beginPath();
+            context.moveTo(padding.left, targetY);
+            context.lineTo(width - padding.right, targetY);
+            context.stroke();
+            context.setLineDash([]);
+
+            context.fillStyle = "#86efac";
+            context.font = "bold 13px Arial, sans-serif";
+            context.textAlign = "right";
+            context.textBaseline = "bottom";
+            context.fillText(`Tavoite ${targetWeight.toFixed(1)} kg`, width - padding.right, Math.max(targetY - 8, 18));
+            context.restore();
+        }
 
         context.shadowColor = "rgba(245, 158, 11, 0.35)";
         context.shadowBlur = 14;
