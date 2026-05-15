@@ -169,6 +169,17 @@ def validate_target_weight(weight_text):
     return weight, None
 
 
+def get_current_user():
+    connection = get_db_connection()
+    user = connection.execute(
+        get_sql("select_user_by_id"),
+        (session["user_id"],),
+    ).fetchone()
+    connection.close()
+
+    return user
+
+
 def build_display_weights(weights):
     oldest_first = list(reversed(weights))
     previous_weights = {}
@@ -517,33 +528,25 @@ def settings():
             new_password = request.form.get("new_password", "")
             new_password_confirm = request.form.get("new_password_confirm", "")
 
-            connection = get_db_connection()
-            user = connection.execute(
-                get_sql("select_user_by_id"),
-                (session["user_id"],),
-            ).fetchone()
-
+            user = get_current_user()
             if not user:
-                connection.close()
                 session.clear()
                 return redirect(url_for("login"))
 
             if not check_password_hash(user["password_hash"], current_password):
-                connection.close()
                 flash("Nykyinen salasana on väärin.")
                 return redirect(url_for("settings"))
 
             if len(new_password) < MIN_PASSWORD_LENGTH:
-                connection.close()
                 flash(f"Uuden salasanan pitää olla vähintään {MIN_PASSWORD_LENGTH} merkkiä pitkä.")
                 return redirect(url_for("settings"))
 
             if new_password != new_password_confirm:
-                connection.close()
                 flash("Uudet salasanat eivät täsmää.")
                 return redirect(url_for("settings"))
 
             password_hash = generate_password_hash(new_password)
+            connection = get_db_connection()
             connection.execute(
                 get_sql("update_password"),
                 (password_hash, session["user_id"]),
@@ -557,21 +560,15 @@ def settings():
         flash("Asetuksia ei voitu tallentaa.")
         return redirect(url_for("settings"))
 
-    connection = get_db_connection()
-    user_settings = connection.execute(
-        get_sql("select_user_settings"),
-        (session["user_id"],),
-    ).fetchone()
-    connection.close()
-
-    if user_settings is None:
+    user = get_current_user()
+    if not user:
         session.clear()
         return redirect(url_for("login"))
 
     return render_template(
         "settings.html",
-        target_weight=user_settings["target_weight"],
-        username=user_settings["username"],
+        target_weight=user["target_weight"],
+        username=user["username"],
     )
 
 
