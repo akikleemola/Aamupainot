@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Aamupainosovellus</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=dark-fitness-15">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=dark-fitness-16">
 </head>
 <body>
     <main class="container">
@@ -93,9 +93,31 @@
             </article>
 
             <article class="stat-card">
-                <span>Merkintöjä</span>
-                <strong>{{ weight_count }}</strong>
-                <small>Tallennettua aamupainoa</small>
+                <span>Tavoitteeseen</span>
+                <strong>
+                    {% if target_status == "reached" %}
+                        0.0 kg
+                    {% elif target_difference is not none %}
+                        {{ target_difference }} kg
+                    {% elif target_weight is not none %}
+                        {{ target_weight }} kg
+                    {% else %}
+                        -
+                    {% endif %}
+                </strong>
+                <small>
+                    {% if target_status == "above" %}
+                        Tavoite {{ target_weight }} kg
+                    {% elif target_status == "below" %}
+                        {{ target_difference }} kg tavoitteen alle
+                    {% elif target_status == "reached" %}
+                        Tavoite saavutettu
+                    {% elif target_weight is not none %}
+                        Lisää paino nähdäksesi erotuksen
+                    {% else %}
+                        <a href="{{ url_for('settings') }}">Aseta tavoite</a>
+                    {% endif %}
+                </small>
             </article>
         </section>
 

@@ -345,7 +345,15 @@ def index():
         get_sql("select_weight_entries_for_user"),
         (session["user_id"],),
     ).fetchall()
+    user_settings = connection.execute(
+        get_sql("select_user_settings"),
+        (session["user_id"],),
+    ).fetchone()
     connection.close()
+
+    if user_settings is None:
+        session.clear()
+        return redirect(url_for("login"))
 
     chart_data = [
         {"date": item["date"], "weight": item["weight"]}
@@ -358,6 +366,9 @@ def index():
     previous_change = None
     recent_average = None
     recent_average_count = min(len(chart_data), 7)
+    target_weight = user_settings["target_weight"]
+    target_difference = None
+    target_status = None
     total_change = None
     display_weights = build_display_weights(weights)
     latest_display_weights = display_weights[:5]
@@ -372,6 +383,16 @@ def index():
         recent_weights = [item["weight"] for item in chart_data[-7:]]
         recent_average = round(sum(recent_weights) / len(recent_weights), 1)
 
+    if target_weight is not None and latest_weight is not None:
+        target_difference = round(abs(latest_weight - target_weight), 1)
+
+        if latest_weight > target_weight:
+            target_status = "above"
+        elif latest_weight < target_weight:
+            target_status = "below"
+        else:
+            target_status = "reached"
+
     return render_template(
         "index.html",
         weights=latest_display_weights,
@@ -381,8 +402,10 @@ def index():
         previous_change=previous_change,
         recent_average=recent_average,
         recent_average_count=recent_average_count,
+        target_difference=target_difference,
+        target_status=target_status,
+        target_weight=target_weight,
         total_change=total_change,
-        weight_count=len(chart_data),
         username=session["username"],
     )
 
