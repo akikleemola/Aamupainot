@@ -45,10 +45,10 @@
                     <li>
                         <div class="history-summary">
                             <strong>{{ item.date }}</strong>
-                            <span>{{ item.weight }} kg</span>
+                            <span>{{ "%.*f"|format(weight_precision, item.weight) }} kg</span>
                             <span class="change-value change-{{ item.change_status }}">
                                 {% if item.change is not none %}
-                                    {{ "%+.1f"|format(item.change) }} kg edelliseen
+                                    {{ "%+.*f"|format(weight_precision, item.change) }} kg edelliseen
                                 {% else %}
                                     Ensimmäinen merkintä
                                 {% endif %}
@@ -90,6 +90,6 @@
         </section>
     </main>
 
-    <script src="{{ url_for('static', filename='chart.js') }}?v=6" defer></script>
+    <script src="{{ url_for('static', filename='chart.js') }}?v=12" defer></script>
 </body>
 </html>

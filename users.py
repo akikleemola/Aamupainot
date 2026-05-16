@@ -93,6 +93,25 @@ def validate_chart_settings(line_type, show_target_line):
     return line_type, 1 if show_target_line == "1" else 0, None
 
 
+def validate_weight_precision(precision_text):
+    try:
+        precision = int(precision_text)
+    except ValueError:
+        return None, "Valitse desimaalien määrä."
+
+    if precision not in (0, 1):
+        return None, "Valitse desimaalien määrä."
+
+    return precision, None
+
+
+def get_weight_precision(user):
+    if user["weight_precision"] in (0, 1):
+        return user["weight_precision"]
+
+    return 1
+
+
 def register_user_routes(app):
     @app.route("/settings", methods=["GET", "POST"])
     @login_required
@@ -137,6 +156,25 @@ def register_user_routes(app):
                 connection.close()
 
                 flash("Kaavion asetukset tallennettu.", "success")
+                return redirect(url_for("settings"))
+
+            if action == "display_settings":
+                precision_text = request.form.get("weight_precision", "1")
+                weight_precision, error = validate_weight_precision(precision_text)
+
+                if error:
+                    flash(error, "error")
+                    return redirect(url_for("settings"))
+
+                connection = get_db_connection()
+                connection.execute(
+                    get_sql("update_display_settings"),
+                    (weight_precision, session["user_id"]),
+                )
+                connection.commit()
+                connection.close()
+
+                flash("Näyttöasetukset tallennettu.", "success")
                 return redirect(url_for("settings"))
 
             if action == "username":
@@ -219,6 +257,7 @@ def register_user_routes(app):
             chart_line_type=user["chart_line_type"],
             show_target_line=user["show_target_line"],
             target_weight=user["target_weight"],
+            weight_precision=get_weight_precision(user),
             username=user["username"],
         )
 

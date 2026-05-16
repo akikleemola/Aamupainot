@@ -5,7 +5,8 @@ CREATE TABLE IF NOT EXISTS users (
     password_hash TEXT NOT NULL,
     target_weight REAL,
     chart_line_type TEXT NOT NULL DEFAULT 'exact',
-    show_target_line INTEGER NOT NULL DEFAULT 1
+    show_target_line INTEGER NOT NULL DEFAULT 1,
+    weight_precision INTEGER NOT NULL DEFAULT 1
 );
 
 -- name: add_target_weight_to_users
@@ -19,6 +20,15 @@ ADD COLUMN chart_line_type TEXT NOT NULL DEFAULT 'exact';
 -- name: add_show_target_line_to_users
 ALTER TABLE users
 ADD COLUMN show_target_line INTEGER NOT NULL DEFAULT 1;
+
+-- name: add_weight_precision_to_users
+ALTER TABLE users
+ADD COLUMN weight_precision INTEGER NOT NULL DEFAULT 1;
+
+-- name: normalize_weight_precision
+UPDATE users
+SET weight_precision = 1
+WHERE weight_precision NOT IN (0, 1);
 
 -- name: create_weight_entries
 CREATE TABLE IF NOT EXISTS weight_entries (
@@ -47,17 +57,17 @@ INSERT INTO users (username, password_hash)
 VALUES (?, ?);
 
 -- name: select_user_by_username
-SELECT id, username, password_hash, target_weight, chart_line_type, show_target_line
+SELECT id, username, password_hash, target_weight, chart_line_type, show_target_line, weight_precision
 FROM users
 WHERE username = ?;
 
 -- name: select_user_by_id
-SELECT id, username, password_hash, target_weight, chart_line_type, show_target_line
+SELECT id, username, password_hash, target_weight, chart_line_type, show_target_line, weight_precision
 FROM users
 WHERE id = ?;
 
 -- name: select_user_settings
-SELECT username, target_weight, chart_line_type, show_target_line
+SELECT username, target_weight, chart_line_type, show_target_line, weight_precision
 FROM users
 WHERE id = ?;
 
@@ -69,6 +79,11 @@ WHERE id = ?;
 -- name: update_chart_settings
 UPDATE users
 SET chart_line_type = ?, show_target_line = ?
+WHERE id = ?;
+
+-- name: update_display_settings
+UPDATE users
+SET weight_precision = ?
 WHERE id = ?;
 
 -- name: update_username

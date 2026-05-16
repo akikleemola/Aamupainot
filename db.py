@@ -37,6 +37,11 @@ def init_db():
         connection.execute(get_sql("add_show_target_line_to_users"))
     except sqlite3.OperationalError:
         pass
+    try:
+        connection.execute(get_sql("add_weight_precision_to_users"))
+    except sqlite3.OperationalError:
+        pass
+    connection.execute(get_sql("normalize_weight_precision"))
     connection.execute(get_sql("create_weight_entries"))
     try:
         connection.execute(get_sql("add_user_id_to_weight_entries"))

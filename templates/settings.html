@@ -50,6 +50,30 @@
         <section class="panel settings-panel">
             <div class="panel-heading">
                 <div>
+                    <p class="eyebrow">Näyttö</p>
+                    <h2>Painon tarkkuus</h2>
+                    <p class="section-note">Valitse näytetäänkö painot kokonaislukuina vai yhdellä desimaalilla.</p>
+                </div>
+            </div>
+
+            <form method="post" action="{{ url_for('settings') }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <input type="hidden" name="action" value="display_settings">
+
+                <label for="weight_precision">Desimaalit</label>
+                <select id="weight_precision" name="weight_precision">
+                    <option value="0" {% if weight_precision == 0 %}selected{% endif %}>Ei desimaaleja</option>
+                    <option value="1" {% if weight_precision == 1 %}selected{% endif %}>Yksi desimaali</option>
+                </select>
+                <small class="field-hint">Esimerkiksi 72 kg tai 72.4 kg.</small>
+
+                <button type="submit">Tallenna näyttöasetukset</button>
+            </form>
+        </section>
+
+        <section class="panel settings-panel">
+            <div class="panel-heading">
+                <div>
                     <p class="eyebrow">Kaavio</p>
                     <h2>Kaavion asetukset</h2>
                     <p class="section-note">Valitse näetkö tarkan painoviivan vai tasoitetun trendin.</p>

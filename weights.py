@@ -13,6 +13,22 @@ MAX_WEIGHT = 250
 MAX_NOTE_LENGTH = 200
 
 
+def get_weight_precision(user_settings):
+    precision = user_settings["weight_precision"]
+
+    if precision not in (0, 1):
+        return 1
+
+    return precision
+
+
+def get_weight_step(weight_precision):
+    if weight_precision == 0:
+        return "1"
+
+    return "0.1"
+
+
 def format_date(date_text):
     return date.fromisoformat(date_text).strftime("%d/%m/%Y")
 
@@ -195,6 +211,7 @@ def register_weight_routes(app):
         target_weight = user_settings["target_weight"]
         chart_line_type = user_settings["chart_line_type"]
         show_target_line = user_settings["show_target_line"] == 1
+        weight_precision = get_weight_precision(user_settings)
         target_difference = None
         target_status = None
         total_change = None
@@ -237,6 +254,8 @@ def register_weight_routes(app):
             target_weight=target_weight,
             today=date.today().isoformat(),
             total_change=total_change,
+            weight_precision=weight_precision,
+            weight_step=get_weight_step(weight_precision),
             username=session["username"],
         )
 
@@ -253,9 +272,18 @@ def register_weight_routes(app):
             get_sql("select_weight_entries_for_user"),
             (session["user_id"],),
         ).fetchall()
+        user_settings = connection.execute(
+            get_sql("select_user_settings"),
+            (session["user_id"],),
+        ).fetchone()
         connection.close()
 
+        if user_settings is None:
+            session.clear()
+            return redirect(url_for("login"))
+
         display_weights = build_display_weights(weights)
+        weight_precision = get_weight_precision(user_settings)
 
         if active_range != "all":
             cutoff_date = date.today() - timedelta(days=int(active_range) - 1)
@@ -268,6 +296,8 @@ def register_weight_routes(app):
             "history.html",
             active_range=active_range,
             weights=display_weights,
+            weight_precision=weight_precision,
+            weight_step=get_weight_step(weight_precision),
             username=session["username"],
         )
 

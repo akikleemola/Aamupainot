@@ -7,6 +7,7 @@ let targetWeight = null;
 let chartSettings = {
     lineType: "exact",
     showTargetLine: true,
+    weightPrecision: 1,
 };
 
 function formatDisplayDate(dateText) {
@@ -53,9 +54,9 @@ document.querySelectorAll(".entry-form").forEach((form) => {
         const weightValue = form.querySelector('input[name="weight"]').value;
         const noteValue = form.querySelector('input[name="note"]').value.trim();
         const originalDate = form.dataset.originalDate;
-        const originalWeight = Number(form.dataset.originalWeight).toFixed(1);
+        const originalWeight = Number(form.dataset.originalWeight);
         const originalNote = form.dataset.originalNote.trim();
-        const normalizedWeight = Number(weightValue).toFixed(1);
+        const normalizedWeight = Number(weightValue);
 
         if (dateValue === originalDate && normalizedWeight === originalWeight && noteValue === originalNote) {
             event.preventDefault();
@@ -117,10 +118,15 @@ if (chartSettingsElement) {
         }
 
         chartSettings.showTargetLine = parsedChartSettings.showTargetLine !== false;
+
+        if (parsedChartSettings.weightPrecision === 0 || parsedChartSettings.weightPrecision === 1) {
+            chartSettings.weightPrecision = parsedChartSettings.weightPrecision;
+        }
     } catch (error) {
         chartSettings = {
             lineType: "exact",
             showTargetLine: true,
+            weightPrecision: 1,
         };
     }
 }
@@ -228,7 +234,7 @@ if (canvas && chartData.length >= 2) {
             context.font = "bold 13px Arial, sans-serif";
             context.textAlign = "right";
             context.textBaseline = "bottom";
-            context.fillText(`Tavoite ${targetWeight.toFixed(1)} kg`, width - padding.right, Math.max(targetY - 8, 18));
+            context.fillText(`Tavoite ${targetWeight.toFixed(chartSettings.weightPrecision)} kg`, width - padding.right, Math.max(targetY - 8, 18));
             context.restore();
         }
 
@@ -283,7 +289,7 @@ if (canvas && chartData.length >= 2) {
                 context.font = "bold 13px Arial, sans-serif";
                 context.textAlign = "center";
                 context.textBaseline = "bottom";
-                context.fillText(`${item.weight.toFixed(1)} kg`, x, Math.max(y - 10, 18));
+                context.fillText(`${item.weight.toFixed(chartSettings.weightPrecision)} kg`, x, Math.max(y - 10, 18));
             });
         }
 
