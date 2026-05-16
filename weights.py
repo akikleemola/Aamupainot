@@ -234,6 +234,7 @@ def register_weight_routes(app):
             target_difference=target_difference,
             target_status=target_status,
             target_weight=target_weight,
+            today=date.today().isoformat(),
             total_change=total_change,
             username=session["username"],
         )
