@@ -163,6 +163,7 @@ def register_weight_routes(app):
             connection.commit()
             connection.close()
 
+            flash("Paino lisätty.", "success")
             return redirect(url_for("index"))
 
         connection = get_db_connection()
