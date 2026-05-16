@@ -93,7 +93,7 @@
             </article>
 
             <article class="stat-card target-card target-{{ target_status or 'missing' }}">
-                <span>Tavoitteeseen</span>
+                <span>Jäljellä tavoitteeseen</span>
                 <strong>
                     {% if target_status == "reached" %}
                         0.0 kg
@@ -107,13 +107,13 @@
                 </strong>
                 <small>
                     {% if target_status == "above" %}
-                        Tavoite {{ target_weight }} kg
+                        Tavoitepaino {{ target_weight }} kg
                     {% elif target_status == "below" %}
-                        {{ target_difference }} kg tavoitteen alle
+                        Tavoitepaino {{ target_weight }} kg, olet sen alapuolella
                     {% elif target_status == "reached" %}
                         Tavoite saavutettu
                     {% elif target_weight is not none %}
-                        Lisää paino nähdäksesi erotuksen
+                        Lisää paino, niin näet tilanteen
                     {% else %}
                         <a href="{{ url_for('settings') }}">Aseta tavoite</a>
                     {% endif %}
