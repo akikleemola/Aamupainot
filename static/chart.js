@@ -238,40 +238,54 @@ if (canvas && chartData.length >= 2) {
         context.lineWidth = 3;
         context.lineJoin = "round";
         context.lineCap = "round";
+        const points = lineData.map((item, index) => ({
+            x: getX(index),
+            y: getY(item.weight),
+        }));
+
         context.beginPath();
+        context.moveTo(points[0].x, points[0].y);
 
-        lineData.forEach((item, index) => {
-            const x = getX(index);
-            const y = getY(item.weight);
+        if (chartSettings.lineType === "smoothed") {
+            points.slice(1).forEach((point, index) => {
+                const previousPoint = points[index];
+                const middleX = (previousPoint.x + point.x) / 2;
+                const middleY = (previousPoint.y + point.y) / 2;
 
-            if (index === 0) {
-                context.moveTo(x, y);
-            } else {
-                context.lineTo(x, y);
-            }
-        });
+                context.quadraticCurveTo(previousPoint.x, previousPoint.y, middleX, middleY);
+            });
+
+            const lastPoint = points[points.length - 1];
+            context.lineTo(lastPoint.x, lastPoint.y);
+        } else {
+            points.slice(1).forEach((point) => {
+                context.lineTo(point.x, point.y);
+            });
+        }
 
         context.stroke();
         context.shadowBlur = 0;
 
-        lineData.forEach((item, index) => {
-            const x = getX(index);
-            const y = getY(item.weight);
+        if (chartSettings.lineType === "exact") {
+            lineData.forEach((item, index) => {
+                const x = getX(index);
+                const y = getY(item.weight);
 
-            context.fillStyle = "#0b1224";
-            context.strokeStyle = chartSettings.lineType === "smoothed" ? "#38bdf8" : "#f6b21a";
-            context.lineWidth = 3;
-            context.beginPath();
-            context.arc(x, y, 6, 0, Math.PI * 2);
-            context.fill();
-            context.stroke();
+                context.fillStyle = "#0b1224";
+                context.strokeStyle = "#f6b21a";
+                context.lineWidth = 3;
+                context.beginPath();
+                context.arc(x, y, 6, 0, Math.PI * 2);
+                context.fill();
+                context.stroke();
 
-            context.fillStyle = "#f8fafc";
-            context.font = "bold 13px Arial, sans-serif";
-            context.textAlign = "center";
-            context.textBaseline = "bottom";
-            context.fillText(`${item.weight.toFixed(1)} kg`, x, Math.max(y - 10, 18));
-        });
+                context.fillStyle = "#f8fafc";
+                context.font = "bold 13px Arial, sans-serif";
+                context.textAlign = "center";
+                context.textBaseline = "bottom";
+                context.fillText(`${item.weight.toFixed(1)} kg`, x, Math.max(y - 10, 18));
+            });
+        }
 
         context.fillStyle = "#9aa6b8";
         context.font = "13px Arial, sans-serif";
